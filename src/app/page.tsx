@@ -1,19 +1,23 @@
 import type { Metadata } from 'next'
 
-import { CtaSection } from '@/components/sections/cta-section'
-import { GalleryCarousel } from '@/components/sections/gallery-carousel'
+import { ApproachSection } from '@/components/sections/approach-section'
+import { BannerStrip } from '@/components/sections/banner-strip'
+import { BeforeAfterShowcase } from '@/components/sections/before-after-showcase'
+import { ContactCTA } from '@/components/sections/contact-cta'
+import { FeaturedProjects } from '@/components/sections/featured-projects'
 import { HeroSection } from '@/components/sections/hero-section'
-import { ServicesPreview } from '@/components/sections/services-preview'
-import { StorySection } from '@/components/sections/story-section'
-import { TestimonialsSection } from '@/components/sections/testimonials-section'
-import { ValuesMarquee } from '@/components/sections/values-marquee'
+import { ManifestoSection } from '@/components/sections/manifesto-section'
+import { TestimonialsSimple } from '@/components/sections/testimonials-simple'
 import {
   localBusinessJsonLd,
   organizationJsonLd,
   webPageJsonLd,
   webSiteJsonLd,
 } from '@/components/seo/json-ld'
+import { readAll } from '@/lib/projects-store'
 import { siteConfig } from '@/lib/seo'
+
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   alternates: { canonical: '/' },
@@ -29,7 +33,8 @@ const jsonLd = {
   ],
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const projects = await readAll()
   return (
     <>
       <script
@@ -37,12 +42,13 @@ export default function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <HeroSection />
-      <ServicesPreview />
-      <StorySection />
-      <TestimonialsSection />
-      <GalleryCarousel />
-      <CtaSection />
-      <ValuesMarquee />
+      <ManifestoSection />
+      <FeaturedProjects projects={projects} />
+      <BannerStrip />
+      <BeforeAfterShowcase projects={projects} />
+      <ApproachSection />
+      <TestimonialsSimple />
+      <ContactCTA />
     </>
   )
 }

@@ -1,20 +1,22 @@
 export const siteConfig = {
-  name: 'Nom Entreprise',
-  url: 'https://www.example.com',
+  name: 'Studio M',
+  brandLine: "Architecture d'intérieur",
+  url: 'https://www.studio-m.paris',
   locale: 'fr_FR',
   description:
-    'Votre entreprise - description courte et percutante de votre activité. Adaptez cette ligne à votre domaine.',
-  ogImage: 'https://www.example.com/og.png',
-  twitterHandle: '@votrecompte',
-  themeColor: '#6d28d9',
-  phone: '+33 1 23 45 67 89',
-  email: 'contact@example.com',
+    "Studio M · Sylvain, architecte d'intérieur à Paris. Rénovation d'appartements et aménagement de commerces sur mesure. Du concept au chantier.",
+  ogImage: 'https://i.ibb.co/Lhg4Vb33/Bandeau.jpg',
+  twitterHandle: '@studiom_paris',
+  themeColor: '#E8DCC4',
+  phone: '+33 6 12 34 56 78',
+  email: 'sylvain@studio-m.paris',
   address: {
-    street: '12 Rue Exemple',
+    street: '14 rue de Turenne',
     city: 'Paris',
-    postalCode: '75001',
+    postalCode: '75003',
     country: 'FR',
   },
+  instagram: 'https://instagram.com/studiom.paris',
 } as const
 
 export type SeoMeta = {
@@ -29,11 +31,12 @@ export type SeoMeta = {
 
 export function buildTitle(page?: string) {
   if (!page) return siteConfig.name
-  return `${page} - ${siteConfig.name}`
+  return `${page} · ${siteConfig.name}`
 }
 
 export const routes = [
   '/',
+  '/projets',
   '/a-propos',
   '/services',
   '/contact',

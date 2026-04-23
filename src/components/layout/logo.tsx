@@ -1,26 +1,22 @@
-import { Globe } from 'lucide-react'
 import Link from 'next/link'
 
+import { brandAssets } from '@/lib/brand'
 import { cn } from '@/lib/utils'
-import { siteConfig } from '@/lib/seo'
 
 type LogoProps = {
   className?: string
+  variant?: 'light' | 'dark'
 }
 
-export function Logo({ className }: LogoProps) {
+export function Logo({ className, variant = 'light' }: LogoProps) {
+  const src = variant === 'dark' ? brandAssets.wordmarkWhite : brandAssets.wordmarkBeige
   return (
     <Link
       href="/"
-      className={cn(
-        'group inline-flex items-center gap-2 font-display text-lg font-semibold tracking-tight text-foreground transition-opacity hover:opacity-90',
-        className
-      )}
+      aria-label="Studio M, retour à l'accueil"
+      className={cn('inline-flex items-center transition-opacity hover:opacity-80', className)}
     >
-      <span className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/15 transition-transform duration-300 group-hover:scale-[1.03]">
-        <Globe className="size-[18px]" aria-hidden />
-      </span>
-      <span>{siteConfig.name}</span>
+      <img src={src} alt="Studio M" className="h-12 w-auto sm:h-14" draggable={false} />
     </Link>
   )
 }

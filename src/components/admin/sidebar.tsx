@@ -21,6 +21,7 @@ import {
   Megaphone,
   FilePen,
   ChevronDown,
+  LayoutGrid,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useSidebar } from '@/components/admin/sidebar-context'
@@ -38,6 +39,7 @@ const pageEditItems = [
 ]
 
 const moduleItems = [
+  { href: '/admin/projets', label: 'Projets', icon: LayoutGrid },
   { href: '/admin/gallery', label: 'Galerie', icon: Images },
   { href: '/admin/blog', label: 'Blog', icon: FileText },
   { href: '/admin/marketing', label: 'Marketing', icon: Megaphone },
