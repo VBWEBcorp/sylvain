@@ -10,7 +10,7 @@ export function FeaturedProjects({ projects }: { projects: Project[] }) {
         <div className="flex items-end justify-between gap-6 pb-14">
           <div>
             <p className="text-[11px] uppercase tracking-[0.3em] text-foreground/50">
-              Projets sélectionnés
+              Réalisations sélectionnées
             </p>
             <h2 className="mt-5 font-display text-[clamp(2rem,4vw,3.5rem)] font-light leading-tight tracking-tight text-foreground">
               Quelques <span className="italic">réalisations récentes</span>
@@ -20,7 +20,7 @@ export function FeaturedProjects({ projects }: { projects: Project[] }) {
             href="/projets"
             className="hidden shrink-0 border-b border-foreground/60 pb-1 text-[13px] uppercase tracking-[0.18em] text-foreground hover:border-foreground md:inline-block"
           >
-            Tous les projets →
+            Toutes les réalisations →
           </Link>
         </div>
 
@@ -63,7 +63,7 @@ export function FeaturedProjects({ projects }: { projects: Project[] }) {
             href="/projets"
             className="border-b border-foreground/60 pb-1 text-[13px] uppercase tracking-[0.18em] text-foreground"
           >
-            Tous les projets →
+            Toutes les réalisations →
           </Link>
         </div>
       </div>

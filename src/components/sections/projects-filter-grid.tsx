@@ -36,7 +36,7 @@ export function ProjectsFilterGrid({ projects }: { projects: Project[] }) {
               Vue d'ensemble
             </p>
             <h2 className="mt-5 max-w-2xl font-display text-[clamp(2rem,4.5vw,3.75rem)] font-light leading-[1.05] tracking-tight text-foreground">
-              Explorez les projets <span className="italic">par catégorie</span>.
+              Explorez les réalisations <span className="italic">par catégorie</span>.
             </h2>
           </div>
 
@@ -118,7 +118,7 @@ export function ProjectsFilterGrid({ projects }: { projects: Project[] }) {
                       className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 via-black/0 to-transparent p-4"
                     >
                       <span className="font-display text-base italic text-white">
-                        Voir le projet →
+                        Voir la réalisation →
                       </span>
                     </motion.div>
                     <span className="absolute top-3 left-3 bg-[var(--brand-cream)]/85 px-2 py-1 text-[9px] uppercase tracking-[0.22em] text-foreground/70 backdrop-blur-sm">
@@ -152,7 +152,7 @@ export function ProjectsFilterGrid({ projects }: { projects: Project[] }) {
           transition={{ duration: 0.4, ease }}
           className="mt-12 text-center text-[11px] uppercase tracking-[0.3em] text-foreground/45"
         >
-          {filtered.length} projet{filtered.length > 1 ? 's' : ''} affiché
+          {filtered.length} réalisation{filtered.length > 1 ? 's' : ''} affichée
           {filtered.length > 1 ? 's' : ''}
         </motion.p>
       </div>

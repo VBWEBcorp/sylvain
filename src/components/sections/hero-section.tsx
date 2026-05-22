@@ -57,7 +57,7 @@ export function HeroSection() {
               href="/projets"
               className="inline-flex items-center gap-2 border-b border-white pb-1 text-[12px] uppercase tracking-[0.2em] text-white"
             >
-              Voir les projets
+              Voir les réalisations
               <span>→</span>
             </Link>
             <Link
@@ -112,7 +112,7 @@ export function HeroSection() {
                 className="group inline-flex items-center gap-3 text-[13px] uppercase tracking-[0.18em] text-foreground"
               >
                 <span className="border-b border-foreground/60 pb-1 transition-colors group-hover:border-foreground">
-                  Voir les projets
+                  Voir les réalisations
                 </span>
                 <span className="transition-transform group-hover:translate-x-1">→</span>
               </Link>

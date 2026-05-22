@@ -169,6 +169,15 @@
     font-family: var(--font-display);
   }
 
+  /* Carrousel : masque la barre de défilement tout en gardant le scroll */
+  .hide-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
   .animate-marquee-left {
     animation: marquee-left 45s linear infinite;
   }
@@ -204,5 +213,14 @@
       'rlig' 1,
       'calt' 1,
       'ss01' 1;
+  }
+
+  /* Home : scroll-snap entre le hero et le footer */
+  html.snap-home {
+    scroll-snap-type: y mandatory;
+  }
+  html.snap-home .snap-section {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
 }

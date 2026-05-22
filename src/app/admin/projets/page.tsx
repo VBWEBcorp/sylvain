@@ -6,7 +6,6 @@ import {
   ArrowUpDown,
   ChevronDown,
   ChevronUp,
-  ExternalLink,
   Plus,
   Trash2,
 } from 'lucide-react'
@@ -191,14 +190,6 @@ export default function AdminProjectsPage() {
                     </>
                   ) : (
                     <>
-                      <Link
-                        href={`/projets/${p.slug}`}
-                        target="_blank"
-                        className="rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
-                        title="Voir la page publique"
-                      >
-                        <ExternalLink className="size-4" />
-                      </Link>
                       <Link
                         href={`/admin/projets/${p.slug}`}
                         className="rounded-md bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20"

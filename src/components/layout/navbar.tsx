@@ -7,20 +7,23 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import { Logo } from '@/components/layout/logo'
+import { siteConfig } from '@/lib/seo'
 import { cn } from '@/lib/utils'
 
 const links = [
-  { to: '/', label: 'Accueil' },
-  { to: '/projets', label: 'Projets' },
-  { to: '/services', label: 'Services' },
+  { to: '/projets', label: 'Réalisations' },
   { to: '/a-propos', label: 'Studio' },
+  { to: '/blog', label: 'Journal' },
   { to: '/contact', label: 'Contact' },
 ]
+
+const ease = [0.22, 1, 0.36, 1] as const
 
 export function Navbar() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname()
+  const isHome = pathname === '/'
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12)
@@ -33,102 +36,117 @@ export function Navbar() {
     setOpen(false)
   }, [pathname])
 
+  // Block body scroll when menu open
+  useEffect(() => {
+    if (!open) return
+    const original = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = original
+    }
+  }, [open])
+
+  // Sur la home, le hero porte déjà l'identité. On masque la navbar
+  // tant qu'on est dans le hero, elle apparaît au scroll.
+  const hidden = isHome && !scrolled && !open
+
   return (
-    <header
-      className={cn(
-        'sticky top-0 z-50 transition-all duration-500',
-        scrolled
-          ? 'border-b border-border/50 bg-[var(--brand-cream)]/90 backdrop-blur-xl'
-          : 'border-b border-transparent bg-transparent'
-      )}
-    >
-      <div className="mx-auto flex h-20 max-w-[1400px] items-center justify-between gap-6 px-6 sm:px-10 lg:px-16">
-        <Logo />
+    <>
+      <header
+        className={cn(
+          'fixed top-0 left-0 z-50 w-full transition-all duration-500',
+          hidden && 'pointer-events-none -translate-y-full opacity-0',
+          !hidden && (scrolled || open)
+            ? 'bg-[var(--brand-cream)]/90 backdrop-blur-xl'
+            : 'bg-transparent'
+        )}
+      >
+        <div className="mx-auto flex h-20 max-w-[1400px] items-center justify-between gap-6 px-6 sm:px-10 lg:px-16">
+          <Logo />
 
-        <nav
-          className="hidden items-center gap-10 md:flex"
-          aria-label="Navigation principale"
-        >
-          {links.map((l) => {
-            const active = pathname === l.to || (l.to !== '/' && pathname?.startsWith(l.to))
-            return (
-              <Link
-                key={l.to}
-                href={l.to}
-                className={cn(
-                  'relative text-[13px] tracking-[0.14em] uppercase transition-colors',
-                  active
-                    ? 'text-foreground'
-                    : 'text-foreground/60 hover:text-foreground'
-                )}
-              >
-                {l.label}
-                {active ? (
-                  <span className="absolute -bottom-1.5 left-1/2 h-px w-4 -translate-x-1/2 bg-foreground/60" />
-                ) : null}
-              </Link>
-            )
-          })}
-        </nav>
-
-        <div className="hidden items-center gap-6 md:flex">
-          <Link
-            href="/contact"
-            className="text-[13px] tracking-[0.14em] uppercase text-foreground underline-offset-4 hover:underline"
+          <button
+            type="button"
+            className="inline-flex size-11 items-center justify-center rounded-full border border-foreground/25 text-foreground transition-colors hover:bg-foreground/5"
+            aria-expanded={open}
+            aria-controls="site-menu"
+            aria-label={open ? 'Fermer le menu' : 'Ouvrir le menu'}
+            onClick={() => setOpen((v) => !v)}
           >
-            Prendre rendez-vous
-          </Link>
+            {open ? <X className="size-5" /> : <Menu className="size-5" />}
+          </button>
         </div>
+      </header>
 
-        <button
-          type="button"
-          className="inline-flex size-10 items-center justify-center rounded-full border border-border/60 text-foreground md:hidden"
-          aria-expanded={open}
-          aria-controls="mobile-nav"
-          aria-label={open ? 'Fermer le menu' : 'Ouvrir le menu'}
-          onClick={() => setOpen((v) => !v)}
-        >
-          {open ? <X className="size-5" /> : <Menu className="size-5" />}
-        </button>
-      </div>
-
+      {/* Overlay menu plein écran — même comportement desktop / mobile */}
       <AnimatePresence>
         {open ? (
           <motion.div
-            id="mobile-nav"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="border-t border-border/50 bg-[var(--brand-cream)] md:hidden"
+            id="site-menu"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease }}
+            className="fixed inset-0 z-40 flex flex-col bg-[var(--brand-cream)] pt-20"
           >
-            <div className="mx-auto flex flex-col gap-1 px-6 py-6">
-              {links.map((l) => {
+            <nav
+              aria-label="Navigation principale"
+              className="flex flex-1 flex-col items-start justify-center gap-2 px-6 sm:px-12 lg:px-20"
+            >
+              {links.map((l, i) => {
                 const active =
                   pathname === l.to || (l.to !== '/' && pathname?.startsWith(l.to))
                 return (
-                  <Link
+                  <motion.div
                     key={l.to}
-                    href={l.to}
-                    className={cn(
-                      'py-3 font-display text-2xl font-light tracking-tight transition-colors',
-                      active ? 'text-foreground' : 'text-foreground/70 hover:text-foreground'
-                    )}
+                    initial={{ opacity: 0, x: -16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1 + i * 0.06, ease }}
                   >
-                    {l.label}
-                  </Link>
+                    <Link
+                      href={l.to}
+                      className={cn(
+                        'block font-display font-light leading-none tracking-tight transition-colors',
+                        'text-[clamp(3rem,9vw,7rem)]',
+                        active
+                          ? 'text-foreground'
+                          : 'text-foreground/30 hover:text-foreground'
+                      )}
+                    >
+                      {active ? <span className="italic">{l.label}</span> : l.label}
+                    </Link>
+                  </motion.div>
                 )
               })}
-              <Link
-                href="/contact"
-                className="mt-4 inline-flex w-fit items-center border-b border-foreground/40 pb-0.5 text-[13px] uppercase tracking-[0.14em]"
-              >
-                Prendre rendez-vous
-              </Link>
-            </div>
+            </nav>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.45, ease }}
+              className="border-t border-foreground/10 px-6 py-6 sm:px-12 lg:px-20"
+            >
+              <div className="flex flex-col items-start justify-between gap-3 text-[11px] uppercase tracking-[0.28em] text-foreground/55 sm:flex-row sm:items-center">
+                <p>{siteConfig.address.street}, {siteConfig.address.city}</p>
+                <div className="flex flex-wrap items-center gap-4">
+                  <a
+                    href={`mailto:${siteConfig.email}`}
+                    className="hover:text-foreground"
+                  >
+                    {siteConfig.email}
+                  </a>
+                  <span aria-hidden className="hidden h-3 w-px bg-foreground/25 sm:block" />
+                  <a
+                    href={`tel:${siteConfig.phone}`}
+                    className="hover:text-foreground"
+                  >
+                    {siteConfig.phone}
+                  </a>
+                </div>
+              </div>
+            </motion.div>
           </motion.div>
         ) : null}
       </AnimatePresence>
-    </header>
+    </>
   )
 }

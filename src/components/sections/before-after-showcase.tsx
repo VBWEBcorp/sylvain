@@ -57,7 +57,7 @@ export function BeforeAfterShowcase({ projects }: { projects: Project[] }) {
                 href={`/projets/${current.slug}`}
                 className="ml-4 border-b border-foreground/60 pb-0.5 text-[11px] uppercase tracking-[0.18em] text-foreground hover:border-foreground"
               >
-                Voir le projet →
+                Voir la réalisation →
               </Link>
             </div>
           </div>

@@ -4,7 +4,7 @@ export const siteConfig = {
   url: 'https://www.studio-m.paris',
   locale: 'fr_FR',
   description:
-    "Studio M · Sylvain, architecte d'intérieur à Paris. Rénovation d'appartements et aménagement de commerces sur mesure. Du concept au chantier.",
+    "Studio M · Sylvain Marceau, architecte d'intérieur à Paris. Rénovation d'appartements et de maisons sur mesure. Du concept au chantier.",
   ogImage: 'https://i.ibb.co/Lhg4Vb33/Bandeau.jpg',
   twitterHandle: '@studiom_paris',
   themeColor: '#E8DCC4',
@@ -38,7 +38,7 @@ export const routes = [
   '/',
   '/projets',
   '/a-propos',
-  '/services',
+  '/blog',
   '/contact',
   '/mentions-legales',
   '/politique-de-confidentialite',

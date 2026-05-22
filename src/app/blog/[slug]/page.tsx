@@ -1,115 +1,121 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
-import { connectDB } from '@/lib/db'
-import { BlogPost } from '@/models/Blog'
-import { siteConfig } from '@/lib/seo'
-import BlogPostContent from './blog-post-content'
+import { defaultBlogPosts, formatDate, getPost } from '@/lib/blog'
 
-type Params = Promise<{ slug: string }>
+export function generateStaticParams() {
+  return defaultBlogPosts.map((p) => ({ slug: p.slug }))
+}
 
-// Revalidate every 60 minutes — new articles will be picked up automatically
-export const revalidate = 3600
-
-// Pre-render all published blog posts at build time
-export async function generateStaticParams() {
-  try {
-    await connectDB()
-    const posts = await BlogPost.find({ published: true }).select('slug').lean()
-    return posts.map((post) => ({ slug: (post as any).slug }))
-  } catch {
-    return []
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}): Promise<Metadata> {
+  const { slug } = await params
+  const post = getPost(slug)
+  if (!post) return {}
+  return {
+    title: post.title,
+    description: post.excerpt,
+    alternates: { canonical: `/blog/${post.slug}` },
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      images: [post.cover],
+    },
   }
 }
 
-// Generate SEO metadata server-side — visible to Google on first crawl
-export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+export default async function BlogPostPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}) {
   const { slug } = await params
+  const post = getPost(slug)
+  if (!post) notFound()
 
-  try {
-    await connectDB()
-    const post = await BlogPost.findOne({ slug, published: true }).lean() as any
+  const idx = defaultBlogPosts.findIndex((p) => p.slug === post.slug)
+  const next = defaultBlogPosts[(idx + 1) % defaultBlogPosts.length]
 
-    if (!post) return {}
+  return (
+    <>
+      <section className="relative">
+        <div className="relative h-[70vh] min-h-[480px] w-full overflow-hidden">
+          <img src={post.cover} alt={post.title} className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/45" />
+        </div>
+        <div className="absolute bottom-0 left-0 w-full">
+          <div className="mx-auto max-w-[1200px] px-6 pb-12 text-white sm:px-10 lg:px-16">
+            <p className="text-[11px] uppercase tracking-[0.3em] text-white/75">
+              {formatDate(post.date)} · {post.readingTime}
+            </p>
+            <h1 className="mt-4 max-w-3xl font-display text-[clamp(2rem,5vw,4rem)] font-light leading-[1.05] tracking-tight">
+              {post.title}
+            </h1>
+          </div>
+        </div>
+      </section>
 
-    const title = post.metaTitle || post.title
-    const description = (post.metaDescription || post.excerpt || '').substring(0, 160)
-    const url = `${siteConfig.url}/blog/${post.slug}`
+      <section className="bg-[var(--brand-cream)] py-24 sm:py-32">
+        <div className="mx-auto max-w-[680px] px-6 sm:px-10">
+          <p className="text-[11px] uppercase tracking-[0.28em] text-foreground/55">
+            Par {post.author}
+          </p>
+          <div className="mt-8 space-y-6 text-[16px] leading-relaxed text-foreground/85">
+            {post.content.map((paragraph, i) => (
+              <p
+                key={i}
+                className={
+                  i === 0
+                    ? 'font-display text-[clamp(1.3rem,2vw,1.7rem)] font-light leading-relaxed text-foreground'
+                    : ''
+                }
+              >
+                {paragraph}
+              </p>
+            ))}
+          </div>
+          {post.tags && post.tags.length > 0 ? (
+            <div className="mt-12 flex flex-wrap items-center gap-2 border-t border-border/60 pt-8">
+              {post.tags.map((t) => (
+                <span
+                  key={t}
+                  className="border border-border/60 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-foreground/70"
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </section>
 
-    return {
-      title,
-      description,
-      authors: post.author ? [{ name: post.author }] : [],
-      openGraph: {
-        type: 'article',
-        title,
-        description,
-        url,
-        siteName: siteConfig.name,
-        locale: siteConfig.locale,
-        images: post.coverImage ? [{ url: post.coverImage, width: 1200, height: 630, alt: title }] : [],
-        publishedTime: post.publishedAt?.toISOString(),
-        modifiedTime: post.updatedAt?.toISOString(),
-        authors: post.author ? [post.author] : [],
-        tags: post.tags || [],
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title,
-        description,
-        images: post.coverImage ? [post.coverImage] : [],
-      },
-      alternates: {
-        canonical: `/blog/${post.slug}`,
-      },
-    }
-  } catch {
-    return {}
-  }
-}
-
-export default async function BlogPostPage({ params }: { params: Params }) {
-  const { slug } = await params
-
-  // Server-side check: if post doesn't exist or isn't published, 404
-  try {
-    await connectDB()
-    const post = await BlogPost.findOne({ slug, published: true }).lean() as any
-
-    if (!post) notFound()
-
-    // Render JSON-LD server-side for structured data
-    const jsonLd = {
-      '@context': 'https://schema.org',
-      '@type': 'BlogPosting',
-      headline: post.metaTitle || post.title,
-      description: post.metaDescription || post.excerpt,
-      image: post.coverImage || undefined,
-      datePublished: post.publishedAt?.toISOString(),
-      dateModified: post.updatedAt?.toISOString(),
-      author: post.author ? { '@type': 'Person', name: post.author } : undefined,
-      publisher: {
-        '@type': 'Organization',
-        name: siteConfig.name,
-        url: siteConfig.url,
-      },
-      mainEntityOfPage: {
-        '@type': 'WebPage',
-        '@id': `${siteConfig.url}/blog/${post.slug}`,
-      },
-      keywords: post.tags?.join(', '),
-    }
-
-    return (
-      <>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-        <BlogPostContent slug={slug} />
-      </>
-    )
-  } catch {
-    notFound()
-  }
+      <section className="bg-black py-20 text-white">
+        <div className="mx-auto max-w-[1200px] px-6 sm:px-10 lg:px-16">
+          <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-end">
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.3em] text-white/45">
+                Article suivant
+              </p>
+              <Link
+                href={`/blog/${next.slug}`}
+                className="mt-3 block font-display text-[clamp(1.5rem,3vw,2.5rem)] font-light leading-tight tracking-tight hover:italic"
+              >
+                {next.title} →
+              </Link>
+            </div>
+            <Link
+              href="/blog"
+              className="border-b border-white/60 pb-1 text-[12px] uppercase tracking-[0.22em] hover:border-white"
+            >
+              ← Tous les articles
+            </Link>
+          </div>
+        </div>
+      </section>
+    </>
+  )
 }

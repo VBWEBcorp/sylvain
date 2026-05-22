@@ -32,17 +32,14 @@ const navItems = [
 
 const pageEditItems = [
   { href: '/admin/pages/accueil', label: 'Accueil', icon: Home },
-  { href: '/admin/pages/a-propos', label: 'À propos', icon: Users },
-  { href: '/admin/pages/services', label: 'Services', icon: Briefcase },
+  { href: '/admin/pages/studio', label: 'Studio', icon: Users },
   { href: '/admin/pages/contact', label: 'Contact', icon: Phone },
-  { href: '/admin/pages/temoignages', label: 'Témoignages', icon: MessageSquare },
 ]
 
 const moduleItems = [
-  { href: '/admin/projets', label: 'Projets', icon: LayoutGrid },
-  { href: '/admin/gallery', label: 'Galerie', icon: Images },
-  { href: '/admin/blog', label: 'Blog', icon: FileText },
-  { href: '/admin/marketing', label: 'Marketing', icon: Megaphone },
+  { href: '/admin/projets', label: 'Réalisations', icon: LayoutGrid },
+  { href: '/admin/journal', label: 'Journal', icon: FileText },
+  { href: '/admin/site', label: 'Site', icon: Megaphone },
 ]
 
 function NavLink({

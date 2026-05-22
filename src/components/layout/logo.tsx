@@ -9,7 +9,7 @@ type LogoProps = {
 }
 
 export function Logo({ className, variant = 'light' }: LogoProps) {
-  const src = variant === 'dark' ? brandAssets.wordmarkWhite : brandAssets.wordmarkBeige
+  const src = variant === 'dark' ? brandAssets.wordmarkWhite : brandAssets.wordmarkDark
   return (
     <Link
       href="/"

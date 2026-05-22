@@ -1,13 +1,8 @@
 import type { Metadata } from 'next'
 
-import { ApproachSection } from '@/components/sections/approach-section'
-import { BannerStrip } from '@/components/sections/banner-strip'
-import { BeforeAfterShowcase } from '@/components/sections/before-after-showcase'
-import { ContactCTA } from '@/components/sections/contact-cta'
-import { FeaturedProjects } from '@/components/sections/featured-projects'
-import { HeroSection } from '@/components/sections/hero-section'
-import { ManifestoSection } from '@/components/sections/manifesto-section'
-import { TestimonialsSimple } from '@/components/sections/testimonials-simple'
+import { IntroAnimation } from '@/components/intro-animation'
+import { HomeRealisations } from '@/components/sections/home-realisations'
+import { JmlcHero } from '@/components/sections/jmlc-hero'
 import {
   localBusinessJsonLd,
   organizationJsonLd,
@@ -41,14 +36,9 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <HeroSection />
-      <ManifestoSection />
-      <FeaturedProjects projects={projects} />
-      <BannerStrip />
-      <BeforeAfterShowcase projects={projects} />
-      <ApproachSection />
-      <TestimonialsSimple />
-      <ContactCTA />
+      <IntroAnimation />
+      <JmlcHero />
+      <HomeRealisations projects={projects} />
     </>
   )
 }
