@@ -21,22 +21,9 @@ export default async function ProjectsPage() {
     <>
       <section className="relative bg-[var(--brand-cream)] pt-28 pb-6 sm:pt-32 sm:pb-8">
         <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-6 px-6 sm:px-10 lg:px-16">
-          <div className="flex items-center gap-4">
-            <img
-              src={brandAssets.monogramDark}
-              alt=""
-              aria-hidden
-              className="h-12 w-auto sm:h-14"
-            />
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.3em] text-foreground/50 sm:text-[11px]">
-                Studio M
-              </p>
-              <h1 className="font-display text-2xl font-light leading-none tracking-tight text-foreground sm:text-3xl">
-                Réalisations
-              </h1>
-            </div>
-          </div>
+          <h1 className="font-display text-3xl font-light leading-none tracking-tight text-foreground sm:text-4xl">
+            Réalisations
+          </h1>
 
           <nav
             aria-label="Sections du site"
