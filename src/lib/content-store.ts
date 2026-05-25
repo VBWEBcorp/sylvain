@@ -14,6 +14,7 @@ export type SiteContent = {
       city: string
     }
     instagram: string
+    hours: string
   }
   home: {
     eyebrow: string
@@ -22,8 +23,8 @@ export type SiteContent = {
   studio: {
     eyebrow: string
     title: string
+    quote: string
     paragraphs: string[]
-    signature: string
     portrait: string
   }
   contact: {
@@ -41,14 +42,15 @@ const DATA_FILE = path.join(DATA_DIR, 'content.json')
 const DEFAULTS: SiteContent = {
   site: {
     name: 'Studio M',
-    email: 'sylvain@studio-m.paris',
-    phone: '+33 6 12 34 56 78',
+    email: 'sylvain@sylvainmarceau.com',
+    phone: '+33 6 58 87 57 10',
     address: {
-      street: '14 rue de Turenne',
-      postalCode: '75003',
+      street: '16 rue Lucien Sampaix',
+      postalCode: '75010',
       city: 'Paris',
     },
-    instagram: 'https://instagram.com/studiom.paris',
+    instagram: 'https://www.instagram.com/studio_m_________/',
+    hours: '',
   },
   home: {
     eyebrow: "Architecte d'intérieur · Paris",
@@ -56,22 +58,23 @@ const DEFAULTS: SiteContent = {
       'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=85',
   },
   studio: {
-    eyebrow: 'Le studio',
-    title: 'Sylvain, architecte d\'intérieur à Paris.',
+    eyebrow: "Architecte d'intérieur",
+    title: 'Sylvain Marceau',
+    quote:
+      "J'aime faire danser les murs comme l'eau vive d'un ruisseau, lorsque le volume anime le regard et élève la curiosité.",
     paragraphs: [
-      "J'aime faire danser les murs, animer le regard, dessiner des ronds comme l'eau vive d'un ruisseau. Je crois à la douceur, à la beauté des choses, au dialogue sincère.",
-      "Chaque nouveau projet est une exploration : rendre vraies, fonctionnelles et durables les aires de vie du quotidien.",
+      "Avec la volonté d'une expérience protéiforme pour les aires de vie du quotidien, Sylvain crée studio m en 2024 à Paris, au service des particuliers et des professionnels.",
+      "Soucieux des détails et des usages, chaque projet ouvre la réflexion du travail de la lumière, de la rencontre des matériaux et des textures, des formes et des circulations.",
+      "Les conceptions maîtrisées donnent à l'espace un caractère sur mesure, insufflé par les références artistiques plurielles et Mid-century, la mémoire des lieux, la volonté formelle d'une exécution qualitative et durable. Sylvain donne une vision 360 degrés au projet, de la conception à l'exécution, jusqu'à la réception du chantier.",
     ],
-    signature: 'Sylvain Marceau, fondateur de Studio M',
     portrait: 'https://i.ibb.co/kg1p7h2k/Sylvain.jpg',
   },
   contact: {
-    eyebrow: 'Échangeons',
+    eyebrow: 'Parlons-en',
     title: 'Racontez-moi votre projet.',
-    intro:
-      'Premier rendez-vous offert, chez vous ou au studio, dans le Marais. Je reviens vers vous sous 48 h ouvrées.',
-    formTitle: 'Quelques mots suffisent.',
-    formIntro: 'Premier contact',
+    intro: '',
+    formTitle: '',
+    formIntro: '',
   },
 }
 

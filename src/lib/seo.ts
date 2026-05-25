@@ -8,15 +8,15 @@ export const siteConfig = {
   ogImage: 'https://i.ibb.co/Lhg4Vb33/Bandeau.jpg',
   twitterHandle: '@studiom_paris',
   themeColor: '#E8DCC4',
-  phone: '+33 6 12 34 56 78',
-  email: 'sylvain@studio-m.paris',
+  phone: '+33 6 58 87 57 10',
+  email: 'sylvain@sylvainmarceau.com',
   address: {
-    street: '14 rue de Turenne',
+    street: '16 rue Lucien Sampaix',
     city: 'Paris',
-    postalCode: '75003',
+    postalCode: '75010',
     country: 'FR',
   },
-  instagram: 'https://instagram.com/studiom.paris',
+  instagram: 'https://www.instagram.com/studio_m_________/',
 } as const
 
 export type SeoMeta = {

@@ -64,9 +64,35 @@ export function Navbar() {
         <div className="mx-auto flex h-20 max-w-[1400px] items-center justify-between gap-6 px-6 sm:px-10 lg:px-16">
           <Logo />
 
+          {/* Liens toujours visibles en partie haute (desktop) — en transparence */}
+          <nav
+            aria-label="Navigation principale"
+            className="hidden items-center gap-7 md:flex lg:gap-10"
+          >
+            {links.map((l) => {
+              const active =
+                pathname === l.to || (l.to !== '/' && pathname?.startsWith(l.to))
+              return (
+                <Link
+                  key={l.to}
+                  href={l.to}
+                  className={cn(
+                    'text-[12px] uppercase tracking-[0.22em] transition-colors',
+                    active
+                      ? 'italic text-foreground'
+                      : 'text-foreground/60 hover:text-foreground'
+                  )}
+                >
+                  {l.label}
+                </Link>
+              )
+            })}
+          </nav>
+
+          {/* Hamburger — mobile uniquement */}
           <button
             type="button"
-            className="inline-flex size-11 items-center justify-center rounded-full border border-foreground/25 text-foreground transition-colors hover:bg-foreground/5"
+            className="inline-flex size-11 items-center justify-center rounded-full border border-foreground/25 text-foreground transition-colors hover:bg-foreground/5 md:hidden"
             aria-expanded={open}
             aria-controls="site-menu"
             aria-label={open ? 'Fermer le menu' : 'Ouvrir le menu'}

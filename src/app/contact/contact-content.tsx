@@ -6,12 +6,19 @@ import Link from 'next/link'
 import { useState } from 'react'
 
 import { brandAssets } from '@/lib/brand'
-import { siteConfig } from '@/lib/seo'
+import type { SiteContent } from '@/lib/content-store'
 
 const ease = [0.22, 1, 0.36, 1] as const
 
-export function ContactContent() {
+export function ContactContent({
+  site,
+  contact,
+}: {
+  site: SiteContent['site']
+  contact: SiteContent['contact']
+}) {
   const [sent, setSent] = useState(false)
+  const hoursLines = (site.hours || '').split('\n').filter(Boolean)
 
   return (
     <>
@@ -60,17 +67,16 @@ export function ContactContent() {
             />
             <div className="relative">
               <p className="text-[11px] uppercase tracking-[0.3em] text-white/50">
-                Échangeons
+                {contact.eyebrow}
               </p>
               <h2 className="mt-6 font-display text-[clamp(2.5rem,5vw,4.5rem)] font-light leading-[1.02] tracking-tight">
-                Racontez-moi
-                <br />
-                <span className="italic text-white/80">votre projet.</span>
+                {contact.title}
               </h2>
-              <p className="mt-8 max-w-md text-[15px] leading-relaxed text-white/65">
-                Premier rendez-vous offert, chez vous ou au studio, dans le
-                Marais. Je reviens vers vous sous 48 h ouvrées.
-              </p>
+              {contact.intro ? (
+                <p className="mt-8 max-w-md text-[15px] leading-relaxed text-white/65">
+                  {contact.intro}
+                </p>
+              ) : null}
 
               <ul className="mt-16 space-y-7">
                 <li>
@@ -78,10 +84,10 @@ export function ContactContent() {
                     Email
                   </p>
                   <a
-                    href={`mailto:${siteConfig.email}`}
+                    href={`mailto:${site.email}`}
                     className="group mt-2 inline-flex items-center gap-2 font-display text-xl font-light text-white hover:italic sm:text-2xl"
                   >
-                    {siteConfig.email}
+                    {site.email}
                     <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </a>
                 </li>
@@ -90,10 +96,10 @@ export function ContactContent() {
                     Téléphone
                   </p>
                   <a
-                    href={`tel:${siteConfig.phone}`}
+                    href={`tel:${site.phone}`}
                     className="mt-2 inline-block font-display text-xl font-light text-white hover:italic sm:text-2xl"
                   >
-                    {siteConfig.phone}
+                    {site.phone}
                   </a>
                 </li>
                 <li>
@@ -101,34 +107,39 @@ export function ContactContent() {
                     Studio
                   </p>
                   <p className="mt-2 font-display text-xl font-light leading-snug text-white sm:text-2xl">
-                    {siteConfig.address.street}
+                    {site.address.street}
                     <br />
-                    {siteConfig.address.postalCode} {siteConfig.address.city}
+                    {site.address.postalCode} {site.address.city}
                   </p>
                 </li>
-                <li>
-                  <p className="text-[10px] uppercase tracking-[0.3em] text-white/45">
-                    Horaires
-                  </p>
-                  <p className="mt-2 text-[14px] leading-relaxed text-white/70">
-                    Lundi au vendredi, 9h30 à 19h
-                    <br />
-                    <span className="italic text-white/45">
-                      Sur rendez-vous uniquement
-                    </span>
-                  </p>
-                </li>
-                <li className="pt-4">
-                  <a
-                    href={siteConfig.instagram}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="group inline-flex items-center gap-2 border-b border-white/40 pb-1 text-[12px] uppercase tracking-[0.22em] text-white transition-colors hover:border-white"
-                  >
-                    Instagram
-                    <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  </a>
-                </li>
+                {hoursLines.length > 0 && (
+                  <li>
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-white/45">
+                      Horaires
+                    </p>
+                    <p className="mt-2 text-[14px] leading-relaxed text-white/70">
+                      {hoursLines.map((line, i) => (
+                        <span key={i}>
+                          {i === 0 ? line : <span className="italic text-white/45">{line}</span>}
+                          {i < hoursLines.length - 1 && <br />}
+                        </span>
+                      ))}
+                    </p>
+                  </li>
+                )}
+                {site.instagram && (
+                  <li className="pt-4">
+                    <a
+                      href={site.instagram}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group inline-flex items-center gap-2 border-b border-white/40 pb-1 text-[12px] uppercase tracking-[0.22em] text-white transition-colors hover:border-white"
+                    >
+                      Instagram
+                      <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </a>
+                  </li>
+                )}
               </ul>
             </div>
           </motion.aside>
@@ -140,12 +151,16 @@ export function ContactContent() {
             transition={{ duration: 0.9, ease, delay: 0.1 }}
             className="bg-[var(--brand-cream)] px-6 py-20 sm:px-12 sm:py-28 lg:px-16 lg:py-32"
           >
-            <p className="text-[11px] uppercase tracking-[0.3em] text-foreground/50">
-              Premier contact
-            </p>
-            <h3 className="mt-6 font-display text-[clamp(1.5rem,2.5vw,2.25rem)] font-light leading-tight tracking-tight text-foreground">
-              Quelques mots <span className="italic">suffisent</span>.
-            </h3>
+            {contact.formIntro ? (
+              <p className="text-[11px] uppercase tracking-[0.3em] text-foreground/50">
+                {contact.formIntro}
+              </p>
+            ) : null}
+            {contact.formTitle ? (
+              <h3 className="mt-6 font-display text-[clamp(1.5rem,2.5vw,2.25rem)] font-light leading-tight tracking-tight text-foreground">
+                {contact.formTitle}
+              </h3>
+            ) : null}
 
             <form
               onSubmit={(e) => {
@@ -163,41 +178,18 @@ export function ContactContent() {
                 <Field label="Téléphone" name="phone" type="tel" />
               </div>
 
-              <fieldset>
-                <legend className="text-[11px] uppercase tracking-[0.22em] text-foreground/55">
-                  Nature du projet
-                </legend>
-                <div className="mt-5 flex flex-wrap gap-2">
-                  {['Appartement', 'Maison', 'Décoration'].map((tag) => (
-                    <label
-                      key={tag}
-                      className="cursor-pointer rounded-full border border-border/70 px-4 py-1.5 text-[12px] transition-colors hover:border-foreground/60 has-[:checked]:border-foreground has-[:checked]:bg-foreground has-[:checked]:text-[var(--brand-cream)]"
-                    >
-                      <input type="checkbox" name="tags" value={tag} className="sr-only" />
-                      {tag}
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
-
-              <Field
-                label="Surface approximative"
-                name="surface"
-                placeholder="ex. 85 m²"
-              />
-
               <div>
                 <label
                   htmlFor="message"
                   className="text-[11px] uppercase tracking-[0.22em] text-foreground/55"
                 >
-                  Votre projet en quelques mots
+                  Votre message
                 </label>
                 <textarea
                   id="message"
                   name="message"
                   rows={5}
-                  placeholder="Adresse, état actuel du bien, envies, timing envisagé…"
+                  placeholder="Votre projet, vos envies, le lieu…"
                   className="mt-3 w-full resize-none border-0 border-b border-border bg-transparent pb-2 text-[15px] text-foreground placeholder:text-foreground/40 focus:border-foreground focus:outline-none"
                 />
               </div>
@@ -214,11 +206,7 @@ export function ContactContent() {
                   <p className="text-sm italic text-foreground/65">
                     Merci, je reviens vers vous très vite.
                   </p>
-                ) : (
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-foreground/40">
-                    Réponse sous 48 h
-                  </p>
-                )}
+                ) : null}
               </div>
             </form>
           </motion.div>

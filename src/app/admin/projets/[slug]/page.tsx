@@ -6,7 +6,7 @@ import { ArrowLeft, Check } from 'lucide-react'
 
 import { GalleryEditor } from '@/components/admin/gallery-editor'
 import { ImageField as ImageUploadField } from '@/components/admin/image-field'
-import type { Project } from '@/lib/projects'
+import type { PhotoCredit, Project } from '@/lib/projects'
 
 function authHeader(): Record<string, string> {
   if (typeof window === 'undefined') return {}
@@ -161,6 +161,32 @@ export default function AdminProjectEditPage({
           </div>
         </Block>
 
+        {/* Statut */}
+        <Block
+          title="Statut"
+          subtitle="Pour un projet pas encore shooté : affiche un bloc « Coming soon » à la place de la galerie."
+        >
+          <label className="flex items-center gap-2.5 text-sm">
+            <input
+              type="checkbox"
+              checked={p.comingSoon ?? false}
+              onChange={(e) => setField('comingSoon', e.target.checked)}
+              className="size-4"
+            />
+            Coming soon (galerie à venir)
+          </label>
+          {p.comingSoon ? (
+            <Field label="Date / mention de shooting">
+              <input
+                value={p.shootingDate ?? ''}
+                onChange={(e) => setField('shootingDate', e.target.value)}
+                placeholder="ex : Shooting en juillet"
+                className={inputCls}
+              />
+            </Field>
+          ) : null}
+        </Block>
+
         {/* Description */}
         <Block title="Texte du projet">
           <Field label="Introduction (phrase courte)">
@@ -206,6 +232,13 @@ export default function AdminProjectEditPage({
               setField('cover', next[0] ?? '')
             }}
           />
+        </Block>
+
+        <Block
+          title="Crédits photo"
+          subtitle="Nom du photographe / magazine + lien Instagram. Affichés sous la galerie sur le site."
+        >
+          <CreditsEditor value={p.credits ?? []} onChange={(v) => setField('credits', v)} />
         </Block>
 
         <Block title="Avant / Après (optionnel)" subtitle="Renseignez les deux photos pour activer le slider comparatif.">
@@ -313,6 +346,63 @@ function StringList({
         className={inputCls}
       />
     </Field>
+  )
+}
+
+function CreditsEditor({
+  value,
+  onChange,
+}: {
+  value: PhotoCredit[]
+  onChange: (v: PhotoCredit[]) => void
+}) {
+  function update(i: number, patch: Partial<PhotoCredit>) {
+    onChange(value.map((c, idx) => (idx === i ? { ...c, ...patch } : c)))
+  }
+  function remove(i: number) {
+    onChange(value.filter((_, idx) => idx !== i))
+  }
+  function add() {
+    onChange([...value, { name: '', url: '' }])
+  }
+
+  return (
+    <div className="space-y-3">
+      {value.length === 0 ? (
+        <p className="text-[12px] text-muted-foreground">Aucun crédit pour l'instant.</p>
+      ) : null}
+      {value.map((c, i) => (
+        <div key={i} className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_1fr_auto]">
+          <input
+            value={c.name}
+            onChange={(e) => update(i, { name: e.target.value })}
+            placeholder="Nom (ex : Studio Nohoia)"
+            className={inputCls}
+          />
+          <input
+            value={c.url ?? ''}
+            onChange={(e) => update(i, { url: e.target.value })}
+            placeholder="https://www.instagram.com/…"
+            className={inputCls}
+          />
+          <button
+            type="button"
+            onClick={() => remove(i)}
+            aria-label="Retirer ce crédit"
+            className="inline-flex items-center justify-center rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground hover:bg-muted"
+          >
+            ✕
+          </button>
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={add}
+        className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted"
+      >
+        + Ajouter un crédit
+      </button>
+    </div>
   )
 }
 

@@ -38,8 +38,9 @@ const pageEditItems = [
 
 const moduleItems = [
   { href: '/admin/projets', label: 'Réalisations', icon: LayoutGrid },
-  { href: '/admin/journal', label: 'Journal', icon: FileText },
-  { href: '/admin/site', label: 'Site', icon: Megaphone },
+  { href: '/admin/blog', label: 'Journal', icon: FileText },
+  { href: '/admin/gallery', label: 'Galerie', icon: Images },
+  { href: '/admin/site', label: 'Coordonnées', icon: Megaphone },
 ]
 
 function NavLink({

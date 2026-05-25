@@ -74,6 +74,14 @@ export default function AdminStudioPage() {
               className={inputCls}
             />
           </Field>
+          <Field label="Citation" hint="Affichée en grand sous le nom, sans les guillemets.">
+            <textarea
+              value={content.studio.quote}
+              onChange={(e) => patch('quote', e.target.value)}
+              rows={3}
+              className={inputCls}
+            />
+          </Field>
           <Field
             label="Paragraphes du texte"
             hint="Séparez les paragraphes par une ligne vide."
@@ -90,13 +98,6 @@ export default function AdminStudioPage() {
                 )
               }
               rows={8}
-              className={inputCls}
-            />
-          </Field>
-          <Field label="Signature">
-            <input
-              value={content.studio.signature}
-              onChange={(e) => patch('signature', e.target.value)}
               className={inputCls}
             />
           </Field>

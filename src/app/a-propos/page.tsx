@@ -2,9 +2,12 @@ import type { Metadata } from 'next'
 
 import { AboutContent } from './about-content'
 import { breadcrumbJsonLd, webPageJsonLd } from '@/components/seo/json-ld'
+import { readContent } from '@/lib/content-store'
+
+export const dynamic = 'force-dynamic'
 
 const description =
-  'Découvrez notre histoire, nos valeurs et notre équipe. Nous accompagnons les entreprises dans leur développement digital.'
+  "Studio M · Sylvain Marceau, architecte d'intérieur à Paris. Approche, méthode et parti-pris du studio."
 
 export const metadata: Metadata = {
   title: 'À propos',
@@ -23,14 +26,15 @@ const jsonLd = {
   ],
 }
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const content = await readContent()
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <AboutContent />
+      <AboutContent studio={content.studio} />
     </>
   )
 }

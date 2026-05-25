@@ -13,7 +13,7 @@ function AdminMain({ children }: { children: React.ReactNode }) {
   return (
     <main className={cn(
       'flex-1 min-h-screen bg-muted/30 transition-all duration-200',
-      isMobile ? 'ml-0' : collapsed ? 'ml-[60px]' : 'ml-[220px]'
+      isMobile ? 'ml-0 pt-14' : collapsed ? 'ml-[60px]' : 'ml-[220px]'
     )}>
       {children}
     </main>

@@ -101,6 +101,21 @@ export default function AdminSitePage() {
           </div>
         </Block>
 
+        <Block title="Horaires">
+          <Field
+            label="Horaires affichés sur la page contact"
+            hint="Une ligne par information. La 2ᵉ ligne s'affichera en italique."
+          >
+            <textarea
+              value={content.site.hours}
+              onChange={(e) => patch('hours', e.target.value)}
+              rows={3}
+              placeholder={'Lundi au vendredi, 9h30 à 19h\nSur rendez-vous uniquement'}
+              className={inputCls}
+            />
+          </Field>
+        </Block>
+
         <Block title="Réseaux">
           <Field label="Instagram (URL)">
             <input

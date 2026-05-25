@@ -1,45 +1,101 @@
 'use client'
 
-import { PageEditor } from '@/components/admin/page-editor'
-import { FieldEditor, SectionEditor, ImageField } from '@/components/admin/field-editor'
+import { useEffect, useState } from 'react'
 
-const defaults = {
-  hero: {
-    eyebrow: 'Contact',
-    title: 'Parlons de votre projet',
-    description: 'Remplissez le formulaire ci-dessous ou contactez-nous directement. Nous répondons sous 24h.',
-    image: 'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&w=1920&q=80',
-  },
-  info: {
-    phone: '',
-    email: '',
-    street: '',
-    postalCode: '',
-    city: '',
-  },
-}
+import {
+  AdminPageHeader,
+  Block,
+  Field,
+  SaveButton,
+  authHeader,
+  inputCls,
+} from '@/components/admin/admin-form'
+import type { SiteContent } from '@/lib/content-store'
 
 export default function AdminContactPage() {
-  return (
-    <PageEditor pageId="contact" title="Page Contact" defaultContent={defaults}>
-      {(content, update) => (
-        <>
-          <SectionEditor title="Hero">
-            <FieldEditor label="Accroche" value={content.hero?.eyebrow} onChange={(v) => update('hero.eyebrow', v)} />
-            <FieldEditor label="Titre" value={content.hero?.title} onChange={(v) => update('hero.title', v)} />
-            <FieldEditor label="Description" value={content.hero?.description} onChange={(v) => update('hero.description', v)} type="textarea" />
-            <ImageField label="Image" value={content.hero?.image} onChange={(v) => update('hero.image', v)} />
-          </SectionEditor>
+  const [content, setContent] = useState<SiteContent | null>(null)
 
-          <SectionEditor title="Informations de contact">
-            <FieldEditor label="Téléphone" value={content.info?.phone} onChange={(v) => update('info.phone', v)} placeholder="01 23 45 67 89" />
-            <FieldEditor label="Email" value={content.info?.email} onChange={(v) => update('info.email', v)} placeholder="contact@example.com" />
-            <FieldEditor label="Adresse" value={content.info?.street} onChange={(v) => update('info.street', v)} placeholder="123 rue Exemple" />
-            <FieldEditor label="Code postal" value={content.info?.postalCode} onChange={(v) => update('info.postalCode', v)} placeholder="75001" />
-            <FieldEditor label="Ville" value={content.info?.city} onChange={(v) => update('info.city', v)} placeholder="Paris" />
-          </SectionEditor>
-        </>
-      )}
-    </PageEditor>
+  useEffect(() => {
+    fetch('/api/content', { cache: 'no-store' })
+      .then((r) => r.json())
+      .then(setContent)
+  }, [])
+
+  async function save() {
+    if (!content) return
+    await fetch('/api/content', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...authHeader() },
+      body: JSON.stringify(content),
+    })
+  }
+
+  if (!content) return <p className="p-10 text-sm text-muted-foreground">Chargement…</p>
+
+  function patch<K extends keyof SiteContent['contact']>(
+    key: K,
+    value: SiteContent['contact'][K]
+  ) {
+    setContent((prev) => (prev ? { ...prev, contact: { ...prev.contact, [key]: value } } : prev))
+  }
+
+  return (
+    <div className="p-6 pb-24 sm:p-10">
+      <div className="mx-auto max-w-3xl">
+        <AdminPageHeader title="Page Contact">
+          <SaveButton onSave={save} />
+        </AdminPageHeader>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Textes affichés sur la page contact (les coordonnées se gèrent dans <em>Coordonnées</em>).
+        </p>
+
+        <Block title="Colonne info (fond noir)">
+          <Field label="Petite ligne au-dessus du titre">
+            <input
+              value={content.contact.eyebrow}
+              onChange={(e) => patch('eyebrow', e.target.value)}
+              className={inputCls}
+            />
+          </Field>
+          <Field label="Titre principal">
+            <textarea
+              value={content.contact.title}
+              onChange={(e) => patch('title', e.target.value)}
+              rows={2}
+              className={inputCls}
+            />
+          </Field>
+          <Field label="Paragraphe d'introduction">
+            <textarea
+              value={content.contact.intro}
+              onChange={(e) => patch('intro', e.target.value)}
+              rows={3}
+              className={inputCls}
+            />
+          </Field>
+        </Block>
+
+        <Block title="Colonne formulaire">
+          <Field label="Petite ligne au-dessus du formulaire">
+            <input
+              value={content.contact.formIntro}
+              onChange={(e) => patch('formIntro', e.target.value)}
+              className={inputCls}
+            />
+          </Field>
+          <Field label="Titre du formulaire">
+            <input
+              value={content.contact.formTitle}
+              onChange={(e) => patch('formTitle', e.target.value)}
+              className={inputCls}
+            />
+          </Field>
+        </Block>
+
+        <div className="mt-10 flex justify-end">
+          <SaveButton onSave={save} />
+        </div>
+      </div>
+    </div>
   )
 }

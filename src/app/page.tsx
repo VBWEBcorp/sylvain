@@ -9,6 +9,7 @@ import {
   webPageJsonLd,
   webSiteJsonLd,
 } from '@/components/seo/json-ld'
+import { readContent } from '@/lib/content-store'
 import { readAll } from '@/lib/projects-store'
 import { siteConfig } from '@/lib/seo'
 
@@ -29,7 +30,7 @@ const jsonLd = {
 }
 
 export default async function HomePage() {
-  const projects = await readAll()
+  const [projects, content] = await Promise.all([readAll(), readContent()])
   return (
     <>
       <script
@@ -37,7 +38,7 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <IntroAnimation />
-      <JmlcHero />
+      <JmlcHero heroImage={content.home.heroImage} />
       <HomeRealisations projects={projects} />
     </>
   )

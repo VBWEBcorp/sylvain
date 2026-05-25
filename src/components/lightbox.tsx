@@ -1,8 +1,10 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Heart, X } from 'lucide-react'
 import { useCallback, useEffect } from 'react'
+
+import { cn } from '@/lib/utils'
 
 type Props = {
   images: string[]
@@ -10,13 +12,28 @@ type Props = {
   onClose: () => void
   onChange: (i: number) => void
   caption?: string
+  getLikeCount?: (src: string) => number
+  isLiked?: (src: string) => boolean
+  onToggleLike?: (src: string) => void
 }
 
 const ease = [0.22, 1, 0.36, 1] as const
 
-export function Lightbox({ images, index, onClose, onChange, caption }: Props) {
+export function Lightbox({
+  images,
+  index,
+  onClose,
+  onChange,
+  caption,
+  getLikeCount,
+  isLiked,
+  onToggleLike,
+}: Props) {
   const open = index !== null
   const total = images.length
+  const currentSrc = images[index ?? 0]
+  const likeCount = getLikeCount?.(currentSrc) ?? 0
+  const likedNow = isLiked?.(currentSrc) ?? false
 
   const next = useCallback(() => {
     if (index === null) return
@@ -69,8 +86,25 @@ export function Lightbox({ images, index, onClose, onChange, caption }: Props) {
             <X className="size-5" />
           </button>
 
-          {/* Compteur */}
-          <p className="absolute top-7 left-5 text-[11px] uppercase tracking-[0.3em] text-white/65 sm:left-8">
+          {/* Likes — en haut à gauche */}
+          {onToggleLike ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                onToggleLike(currentSrc)
+              }}
+              aria-pressed={likedNow}
+              aria-label={likedNow ? 'Retirer le like' : 'Aimer cette photo'}
+              className="absolute top-5 left-5 z-10 inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-2 text-white backdrop-blur-sm transition-colors hover:bg-white/20 sm:top-7 sm:left-8"
+            >
+              <Heart className={cn('size-5', likedNow && 'fill-white')} />
+              <span className="text-[13px] tabular-nums">{likeCount}</span>
+            </button>
+          ) : null}
+
+          {/* Compteur de photo — centré en haut */}
+          <p className="absolute top-7 left-1/2 -translate-x-1/2 text-[11px] uppercase tracking-[0.3em] text-white/65">
             {String((index ?? 0) + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
           </p>
 

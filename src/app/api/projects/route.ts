@@ -39,6 +39,9 @@ export async function POST(request: NextRequest) {
     intro: body.intro ?? '',
     description: body.description ?? [],
     services: body.services ?? [],
+    credits: body.credits ?? [],
+    comingSoon: body.comingSoon ?? false,
+    shootingDate: body.shootingDate ?? '',
   }
 
   try {

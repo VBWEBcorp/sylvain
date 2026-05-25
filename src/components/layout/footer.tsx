@@ -38,7 +38,7 @@ export function Footer() {
             <h2 className="mt-6 max-w-2xl font-display text-[clamp(2rem,4.5vw,4rem)] font-light leading-[1.05] tracking-tight">
               Un projet en tête ?
               <br />
-              <span className="italic text-white/70">Échangeons.</span>
+              <span className="italic text-white/70">Parlons-en.</span>
             </h2>
           </div>
           <div className="flex flex-col justify-end gap-5">

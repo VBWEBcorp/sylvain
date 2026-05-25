@@ -137,36 +137,6 @@ export default function AdminLoginPage() {
               </Button>
             </form>
 
-            {/* TODO: Retirer avant mise en production */}
-            <div className="mt-4">
-              <Button
-                type="button"
-                variant="secondary"
-                className="w-full"
-                onClick={() => {
-                  localStorage.setItem('authToken', 'demo-token')
-                  localStorage.setItem('authUser', JSON.stringify({ email: 'demo@template.com', name: 'Demo', role: 'admin' }))
-                  router.push('/admin/dashboard')
-                }}
-              >
-                Accès démo
-              </Button>
-            </div>
-
-            <div className="mt-6 pt-4 border-t border-border/50">
-              <p className="text-sm text-muted-foreground text-center mb-4">
-                Vous n'avez pas de compte?
-              </p>
-              <Button
-                asChild
-                variant="outline"
-                className="w-full"
-              >
-                <Link href="/admin/register">
-                  Créer un compte
-                </Link>
-              </Button>
-            </div>
           </CardContent>
         </Card>
 

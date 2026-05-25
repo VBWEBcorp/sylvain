@@ -7,13 +7,12 @@ import { motion } from 'framer-motion'
 import {
   Home,
   Users,
-  Briefcase,
   Phone,
-  MessageSquare,
   Images,
   ArrowRight,
   FileText,
-  Database,
+  LayoutGrid,
+  Megaphone,
 } from 'lucide-react'
 
 interface AdminUser {
@@ -23,12 +22,12 @@ interface AdminUser {
 
 const modules = [
   { href: '/admin/pages/accueil', label: 'Accueil', desc: 'Hero, histoire, CTA, bandeau', icon: Home },
-  { href: '/admin/pages/a-propos', label: 'À propos', desc: 'Présentation, valeurs, galerie', icon: Users },
-  { href: '/admin/pages/services', label: 'Services', desc: 'Liste des services', icon: Briefcase },
+  { href: '/admin/pages/studio', label: 'Studio', desc: 'Présentation, valeurs', icon: Users },
   { href: '/admin/pages/contact', label: 'Contact', desc: 'Formulaire, coordonnées', icon: Phone },
-  { href: '/admin/pages/temoignages', label: 'Témoignages', desc: 'Avis clients', icon: MessageSquare },
+  { href: '/admin/projets', label: 'Réalisations', desc: 'Projets affichés sur le site', icon: LayoutGrid },
+  { href: '/admin/blog', label: 'Journal', desc: 'Articles et actualités', icon: FileText },
   { href: '/admin/gallery', label: 'Galerie', desc: 'Photos du site', icon: Images },
-  { href: '/admin/blog', label: 'Blog', desc: 'Articles et actualités', icon: FileText },
+  { href: '/admin/site', label: 'Coordonnées', desc: 'Infos contact, réseaux', icon: Megaphone },
 ]
 
 const ease = [0.22, 1, 0.36, 1] as const
@@ -36,8 +35,6 @@ const ease = [0.22, 1, 0.36, 1] as const
 export default function AdminDashboardPage() {
   const [user, setUser] = useState<AdminUser | null>(null)
   const [loading, setLoading] = useState(true)
-  const [seeding, setSeeding] = useState(false)
-  const [seedDone, setSeedDone] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -108,49 +105,6 @@ export default function AdminDashboardPage() {
           })}
         </div>
       </motion.div>
-
-      {/* Seed */}
-      {!seedDone && (
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease, delay: 0.16 }}
-          className="rounded-xl border border-dashed border-border/60 p-5 flex items-center justify-between"
-        >
-          <div className="flex items-center gap-3">
-            <Database className="size-5 text-muted-foreground" />
-            <div>
-              <p className="text-sm font-medium text-foreground">Données d&apos;exemple</p>
-              <p className="text-xs text-muted-foreground">Ajouter des photos galerie et articles blog pour tester le template</p>
-            </div>
-          </div>
-          <button
-            onClick={async () => {
-              setSeeding(true)
-              try {
-                const token = localStorage.getItem('authToken')
-                const res = await fetch('/api/seed', {
-                  method: 'POST',
-                  headers: { Authorization: `Bearer ${token}` },
-                })
-                if (res.ok) {
-                  setSeedDone(true)
-                } else {
-                  alert('Erreur lors du seed')
-                }
-              } catch {
-                alert('Erreur réseau')
-              } finally {
-                setSeeding(false)
-              }
-            }}
-            disabled={seeding}
-            className="shrink-0 px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
-          >
-            {seeding ? 'Chargement...' : 'Charger les données'}
-          </button>
-        </motion.div>
-      )}
     </div>
   )
 }

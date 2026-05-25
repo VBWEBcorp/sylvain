@@ -7,17 +7,18 @@ import { brandAssets } from '@/lib/brand'
 
 const ease = [0.22, 1, 0.36, 1] as const
 
-const heroImage =
+const FALLBACK_HERO =
   'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=85'
 
-export function JmlcHero() {
+export function JmlcHero({ heroImage }: { heroImage?: string }) {
+  const src = heroImage || FALLBACK_HERO
   return (
     <section className="snap-section relative h-[100svh] min-h-[600px] w-full overflow-hidden">
       <motion.img
         initial={{ scale: 1.06 }}
         animate={{ scale: 1 }}
         transition={{ duration: 2.4, ease }}
-        src={heroImage}
+        src={src}
         alt=""
         className="absolute inset-0 h-full w-full object-cover"
       />
