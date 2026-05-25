@@ -1,9 +1,15 @@
 import jwt from 'jsonwebtoken'
 import { NextRequest } from 'next/server'
 
-const JWT_SECRET: string = process.env.JWT_SECRET ?? ''
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET must be defined in environment variables')
+// Résolu au runtime (et non au chargement du module) pour ne pas faire échouer
+// `next build` quand JWT_SECRET n'est pas présent dans l'environnement de build.
+// La variable reste obligatoire à l'exécution des routes d'auth.
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET
+  if (!secret) {
+    throw new Error('JWT_SECRET must be defined in environment variables')
+  }
+  return secret
 }
 
 export interface JWTPayload {
@@ -13,12 +19,12 @@ export interface JWTPayload {
 }
 
 export function generateToken(payload: Omit<JWTPayload, 'iat' | 'exp'>) {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' })
+  return jwt.sign(payload, getJwtSecret(), { expiresIn: '7d' })
 }
 
 export function verifyToken(token: string): JWTPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as JWTPayload
+    return jwt.verify(token, getJwtSecret()) as JWTPayload
   } catch {
     return null
   }
