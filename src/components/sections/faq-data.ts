@@ -14,7 +14,7 @@ export const homeFaqs: Faq[] = [
   {
     question: 'Comment se déroule un projet, de la première rencontre à la livraison ?',
     answer:
-      "Tout commence par un échange pour comprendre le lieu, vos envies et vos contraintes. Vient ensuite la conception — travail de la lumière, des matériaux, des formes et des circulations — puis le suivi d'exécution jusqu'à la réception du chantier. Une vision 360°, de l'idée à la remise des clés.",
+      "Tout commence par un échange pour comprendre le lieu, vos envies et vos contraintes. Vient ensuite la conception : travail de la lumière, des matériaux, des formes et des circulations, puis le suivi d'exécution jusqu'à la réception du chantier. Une vision 360°, de l'idée à la remise des clés.",
   },
   {
     question: 'Comment est établi le devis ?',
