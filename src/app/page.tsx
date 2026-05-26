@@ -1,9 +1,12 @@
 import type { Metadata } from 'next'
 
+import { homeFaqs } from '@/components/sections/faq-data'
+import { FaqSection } from '@/components/sections/faq-section'
 import { IntroAnimation } from '@/components/intro-animation'
 import { HomeRealisations } from '@/components/sections/home-realisations'
 import { JmlcHero } from '@/components/sections/jmlc-hero'
 import {
+  faqJsonLd,
   localBusinessJsonLd,
   organizationJsonLd,
   webPageJsonLd,
@@ -26,6 +29,7 @@ const jsonLd = {
     organizationJsonLd(),
     localBusinessJsonLd(),
     webPageJsonLd(siteConfig.name, siteConfig.description, '/'),
+    faqJsonLd(homeFaqs),
   ],
 }
 
@@ -40,6 +44,7 @@ export default async function HomePage() {
       <IntroAnimation />
       <JmlcHero heroImage={content.home.heroImage} />
       <HomeRealisations projects={projects} />
+      <FaqSection faqs={homeFaqs} />
     </>
   )
 }
