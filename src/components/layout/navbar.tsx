@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils'
 const links = [
   { to: '/projets', label: 'Réalisations' },
   { to: '/a-propos', label: 'Studio' },
-  { to: '/blog', label: 'Journal' },
+  { to: '/presse', label: 'Presse' },
   { to: '/contact', label: 'Contact' },
 ]
 

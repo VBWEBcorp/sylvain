@@ -41,6 +41,15 @@ function ProjectCarousel({ project, likes }: { project: Project; likes: Likes })
   const [active, setActive] = useState(0)
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
 
+  // Largeur réelle d'une vignette (image + gouttière), mesurée dans le DOM
+  // pour rester juste malgré le gap de 5 mm entre les images.
+  function itemWidth(el: HTMLDivElement) {
+    const first = el.firstElementChild as HTMLElement | null
+    if (!first) return el.clientWidth
+    const gap = parseFloat(getComputedStyle(el).columnGap || '0') || 0
+    return first.getBoundingClientRect().width + gap
+  }
+
   useEffect(() => {
     const el = trackRef.current
     if (!el) return
@@ -48,8 +57,7 @@ function ProjectCarousel({ project, likes }: { project: Project; likes: Likes })
     const onScroll = () => {
       cancelAnimationFrame(raf)
       raf = requestAnimationFrame(() => {
-        const itemWidth = el.scrollWidth / images.length
-        const idx = Math.round(el.scrollLeft / itemWidth)
+        const idx = Math.round(el.scrollLeft / itemWidth(el))
         setActive(Math.min(Math.max(idx, 0), images.length - 1))
       })
     }
@@ -63,8 +71,7 @@ function ProjectCarousel({ project, likes }: { project: Project; likes: Likes })
   function scrollBy(direction: -1 | 1) {
     const el = trackRef.current
     if (!el) return
-    const itemWidth = el.scrollWidth / images.length
-    el.scrollBy({ left: direction * itemWidth, behavior: 'smooth' })
+    el.scrollBy({ left: direction * itemWidth(el), behavior: 'smooth' })
   }
 
   const empty = images.length === 0
@@ -114,13 +121,13 @@ function ProjectCarousel({ project, likes }: { project: Project; likes: Likes })
           <div className="group relative">
             <div
               ref={trackRef}
-              className="hide-scrollbar flex w-full snap-x snap-mandatory overflow-x-auto"
+              className="hide-scrollbar flex w-full snap-x snap-mandatory gap-[5mm] overflow-x-auto"
               style={{ scrollSnapType: 'x mandatory' }}
             >
               {images.map((src, i) => (
                 <div
                   key={i}
-                  className="group/photo relative aspect-[3/4] w-[84%] shrink-0 snap-start overflow-hidden sm:w-[calc(100%/3)]"
+                  className="group/photo relative aspect-[3/4] w-[84%] shrink-0 snap-start overflow-hidden sm:w-[calc((100%-10mm)/3)]"
                 >
                   <button
                     type="button"

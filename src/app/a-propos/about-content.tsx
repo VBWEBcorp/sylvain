@@ -10,7 +10,8 @@ const ease = [0.22, 1, 0.36, 1] as const
 export function AboutContent({ studio }: { studio: SiteContent['studio'] }) {
   return (
     <section className="bg-[var(--brand-cream)] pt-32 pb-24 sm:pt-40 sm:pb-32">
-      <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-14 px-6 sm:px-10 lg:grid-cols-12 lg:gap-20 lg:px-16">
+      <div className="mx-auto max-w-[1200px] px-6 sm:px-10 lg:px-16">
+        <div className="grid grid-cols-1 items-center gap-14 border border-foreground/15 p-8 sm:p-12 lg:grid-cols-12 lg:gap-20 lg:p-16">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -30,7 +31,7 @@ export function AboutContent({ studio }: { studio: SiteContent['studio'] }) {
             </p>
           ) : null}
 
-          <div className="mt-10 max-w-xl space-y-5 text-[15px] leading-relaxed text-foreground/75">
+          <div className="mt-10 max-w-xl space-y-4 text-[15px] leading-[1.5] text-foreground/75">
             {studio.paragraphs.map((para, i) => (
               <p key={i}>{para}</p>
             ))}
@@ -61,6 +62,7 @@ export function AboutContent({ studio }: { studio: SiteContent['studio'] }) {
             />
           </div>
         </motion.div>
+        </div>
       </div>
     </section>
   )

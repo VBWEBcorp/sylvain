@@ -12,7 +12,7 @@ export function HomeRealisations({ projects }: { projects: Project[] }) {
           Studio M · Réalisations
         </p>
         <h2 className="mt-5 font-display text-[clamp(1.75rem,3.5vw,2.75rem)] font-light leading-tight tracking-tight text-foreground">
-          Quelques <span className="italic">lieux transformés</span>.
+          Vos projets <span className="italic">prennent vie</span>.
         </h2>
       </div>
 

@@ -19,9 +19,6 @@ export function FaqSection({ faqs = homeFaqs }: { faqs?: Faq[] }) {
           <p className="text-[11px] uppercase tracking-[0.32em] text-foreground/55">
             Studio M · Questions fréquentes
           </p>
-          <h2 className="mt-5 font-display text-[clamp(1.75rem,3.5vw,2.75rem)] font-light leading-tight tracking-tight text-foreground">
-            Ce que l'on me <span className="italic">demande souvent</span>.
-          </h2>
         </div>
 
         <ul className="mt-14 border-t border-foreground/10">

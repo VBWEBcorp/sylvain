@@ -66,10 +66,12 @@ export function ContactContent({
               className="pointer-events-none absolute -right-20 -bottom-16 h-[28rem] w-auto opacity-[0.05]"
             />
             <div className="relative">
-              <p className="text-[11px] uppercase tracking-[0.3em] text-white/50">
-                {contact.eyebrow}
-              </p>
-              <h2 className="mt-6 font-display text-[clamp(2.5rem,5vw,4.5rem)] font-light leading-[1.02] tracking-tight">
+              {contact.eyebrow ? (
+                <p className="text-[11px] uppercase tracking-[0.3em] text-white/50">
+                  {contact.eyebrow}
+                </p>
+              ) : null}
+              <h2 className="font-display text-[clamp(2.5rem,5vw,4.5rem)] font-light leading-[1.02] tracking-tight">
                 {contact.title}
               </h2>
               {contact.intro ? (
