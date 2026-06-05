@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { Lightbox } from '@/components/lightbox'
 import { useLikes } from '@/hooks/use-likes'
+import { optimizedImage } from '@/lib/img'
 import type { Project } from '@/lib/projects'
 import { cn } from '@/lib/utils'
 
@@ -106,8 +107,10 @@ function ProjectCarousel({ project, likes }: { project: Project; likes: Likes })
               aria-label="Agrandir la photo"
             >
               <img
-                src={images[0]}
+                src={optimizedImage(images[0], { width: 1400 })}
                 alt={project.title}
+                loading="lazy"
+                decoding="async"
                 className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover/photo:scale-[1.02]"
               />
             </button>
@@ -136,8 +139,11 @@ function ProjectCarousel({ project, likes }: { project: Project; likes: Likes })
                     className="block h-full w-full overflow-hidden"
                   >
                     <img
-                      src={src}
+                      src={optimizedImage(src, { width: 1000 })}
                       alt=""
+                      loading={i === 0 ? 'eager' : 'lazy'}
+                      decoding="async"
+                      fetchPriority={i === 0 ? 'high' : 'auto'}
                       className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover/photo:scale-[1.02]"
                     />
                   </button>

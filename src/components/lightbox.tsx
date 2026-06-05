@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Heart, X } from 'lucide-react'
 import { useCallback, useEffect } from 'react'
 
+import { optimizedImage } from '@/lib/img'
 import { cn } from '@/lib/utils'
 
 type Props = {
@@ -126,7 +127,7 @@ export function Lightbox({
           {/* Image */}
           <motion.img
             key={index}
-            src={images[index ?? 0]}
+            src={optimizedImage(images[index ?? 0], { width: 2000 })}
             alt=""
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
