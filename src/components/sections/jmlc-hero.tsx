@@ -7,6 +7,13 @@ import { brandAssets } from '@/lib/brand'
 
 const ease = [0.22, 1, 0.36, 1] as const
 
+const navLinks = [
+  { to: '/projets', label: 'Réalisations' },
+  { to: '/a-propos', label: 'Studio' },
+  { to: '/presse', label: 'Presse' },
+  { to: '/contact', label: 'Contact' },
+]
+
 const FALLBACK_HERO =
   'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=85'
 
@@ -42,28 +49,21 @@ export function JmlcHero({ heroImage }: { heroImage?: string }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 2.2, ease }}
           aria-label="Navigation principale"
-          className="mt-12 flex items-center gap-7 sm:gap-12"
+          className="mt-12 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 sm:gap-x-12"
         >
-          <Link
-            href="/projets"
-            className="text-[13px] uppercase tracking-[0.3em] text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.5)] transition-opacity hover:opacity-80 sm:text-[15px]"
-          >
-            Réalisations
-          </Link>
-          <span aria-hidden className="h-4 w-px bg-white/55" />
-          <Link
-            href="/a-propos"
-            className="text-[13px] uppercase tracking-[0.3em] text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.5)] transition-opacity hover:opacity-80 sm:text-[15px]"
-          >
-            Studio
-          </Link>
-          <span aria-hidden className="h-4 w-px bg-white/55" />
-          <Link
-            href="/contact"
-            className="text-[13px] uppercase tracking-[0.3em] text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.5)] transition-opacity hover:opacity-80 sm:text-[15px]"
-          >
-            Contact
-          </Link>
+          {navLinks.map((l, i) => (
+            <div key={l.to} className="flex items-center gap-x-6 sm:gap-x-12">
+              {i > 0 && (
+                <span aria-hidden className="hidden h-4 w-px bg-white/55 sm:block" />
+              )}
+              <Link
+                href={l.to}
+                className="text-[13px] uppercase tracking-[0.28em] text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.5)] transition-opacity hover:opacity-80 sm:text-[12px] sm:font-light sm:tracking-[0.32em]"
+              >
+                {l.label}
+              </Link>
+            </div>
+          ))}
         </motion.nav>
       </div>
     </section>

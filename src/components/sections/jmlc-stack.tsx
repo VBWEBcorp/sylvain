@@ -17,7 +17,7 @@ type Likes = ReturnType<typeof useLikes>
 export function JmlcStack({ projects }: { projects: Project[] }) {
   const likes = useLikes()
   return (
-    <section className="bg-[var(--brand-cream)] pb-24 sm:pb-32">
+    <section className="bg-white pb-24 sm:pb-32">
       <ul className="space-y-20 pt-16 sm:space-y-28 sm:pt-24">
         {projects.map((p, i) => (
           <motion.li

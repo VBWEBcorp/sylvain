@@ -7,6 +7,7 @@ import { siteConfig } from '@/lib/seo'
 const navLinks = [
   { label: 'Réalisations', to: '/projets' },
   { label: 'Studio', to: '/a-propos' },
+  { label: 'Presse', to: '/presse' },
   { label: 'Journal', to: '/blog' },
   { label: 'Contact', to: '/contact' },
 ]
@@ -69,7 +70,7 @@ export function Footer() {
             />
             <p className="mt-6 max-w-xs text-[13px] leading-relaxed text-white/55">
               Architecture d'intérieur à Paris. Rénovation d'appartements et de
-              maisons sur mesure, du concept au chantier.
+              commerces de la conception à la réalisation.
             </p>
           </div>
 
@@ -110,7 +111,6 @@ export function Footer() {
         {/* Bas de page */}
         <div className="mt-16 flex flex-col items-start justify-between gap-3 border-t border-white/10 pt-6 text-[11px] uppercase tracking-[0.22em] text-white/35 sm:flex-row sm:items-center">
           <p>© {new Date().getFullYear()} Studio M · Tous droits réservés</p>
-          <p className="italic tracking-normal normal-case">Paris, depuis 2016</p>
         </div>
       </div>
     </footer>

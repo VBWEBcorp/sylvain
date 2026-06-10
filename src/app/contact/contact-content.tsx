@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion'
 import { ArrowUpRight } from 'lucide-react'
-import Link from 'next/link'
 import { useState } from 'react'
 
 import { brandAssets } from '@/lib/brand'
@@ -19,30 +18,16 @@ export function ContactContent({
 }) {
   const [sent, setSent] = useState(false)
   const hoursLines = (site.hours || '').split('\n').filter(Boolean)
+  const hasIntroHeader = Boolean(contact.eyebrow || contact.title || contact.intro)
 
   return (
     <>
       {/* Barre supérieure compacte */}
       <section className="bg-[var(--brand-cream)] pt-28 pb-6 sm:pt-32 sm:pb-8">
-        <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-6 px-6 sm:px-10 lg:px-16">
+        <div className="mx-auto flex max-w-[1400px] items-center px-6 sm:px-10 lg:px-16">
           <h1 className="font-display text-3xl font-light leading-none tracking-tight text-foreground sm:text-4xl">
             Contact
           </h1>
-          <nav aria-label="Sections du site" className="flex items-center gap-5 sm:gap-7">
-            <Link
-              href="/projets"
-              className="text-[11px] uppercase tracking-[0.22em] text-foreground/70 transition-colors hover:text-foreground sm:text-[12px]"
-            >
-              Réalisations
-            </Link>
-            <span aria-hidden className="h-3 w-px bg-foreground/30" />
-            <Link
-              href="/a-propos"
-              className="text-[11px] uppercase tracking-[0.22em] text-foreground/70 transition-colors hover:text-foreground sm:text-[12px]"
-            >
-              Studio
-            </Link>
-          </nav>
         </div>
         <div className="mx-auto mt-6 max-w-[1400px] px-6 sm:px-10 lg:px-16">
           <span aria-hidden className="block h-px w-full bg-foreground/10" />
@@ -71,16 +56,18 @@ export function ContactContent({
                   {contact.eyebrow}
                 </p>
               ) : null}
-              <h2 className="font-display text-[clamp(2.5rem,5vw,4.5rem)] font-light leading-[1.02] tracking-tight">
-                {contact.title}
-              </h2>
+              {contact.title ? (
+                <h2 className="font-display text-[clamp(2.5rem,5vw,4.5rem)] font-light leading-[1.02] tracking-tight">
+                  {contact.title}
+                </h2>
+              ) : null}
               {contact.intro ? (
                 <p className="mt-8 max-w-md text-[15px] leading-relaxed text-white/65">
                   {contact.intro}
                 </p>
               ) : null}
 
-              <ul className="mt-16 space-y-7">
+              <ul className={`space-y-7 ${hasIntroHeader ? 'mt-16' : ''}`}>
                 <li>
                   <p className="text-[10px] uppercase tracking-[0.3em] text-white/45">
                     Email

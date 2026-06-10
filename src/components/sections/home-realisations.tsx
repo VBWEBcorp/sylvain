@@ -6,7 +6,7 @@ import type { Project } from '@/lib/projects'
 export function HomeRealisations({ projects }: { projects: Project[] }) {
   const featured = projects.slice(0, 3)
   return (
-    <section className="bg-[var(--brand-cream)] pt-20 sm:pt-28">
+    <section className="bg-white pt-20 sm:pt-28">
       <div className="mx-auto max-w-[1100px] px-6 text-center sm:px-8">
         <p className="text-[11px] uppercase tracking-[0.32em] text-foreground/55">
           Studio M · Réalisations

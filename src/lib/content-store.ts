@@ -71,7 +71,7 @@ const DEFAULTS: SiteContent = {
   },
   contact: {
     eyebrow: '',
-    title: 'Racontez-moi votre projet',
+    title: '',
     intro: '',
     formTitle: '',
     formIntro: '',

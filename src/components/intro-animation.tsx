@@ -5,13 +5,12 @@ import { useEffect, useState } from 'react'
 
 import { brandAssets } from '@/lib/brand'
 
-// Courbe douce pour les fondus, courbe « cinéma » pour la montée du rideau.
-const ease = [0.22, 1, 0.36, 1] as const
+// Courbe « in-out » très douce pour le voyage des logos, courbe « cinéma » pour le rideau.
+const ease = [0.65, 0, 0.35, 1] as const
 const curtainEase = [0.83, 0, 0.17, 1] as const
 
-const LOGO_IN = 0.9 // s — fondu d'apparition du monogramme
-const WORDMARK_DELAY = 0.6 // s — décalage de « studio m » (~0,5 s après le logo)
-const RISE_START = 2.4 // s — moment où le rideau commence à se lever
+const ENTER_DUR = 1.5 // s — voyage des logos jusqu'au centre (plus long = plus smooth)
+const RISE_START = 1.7 // s — le rideau se lève dès qu'ils se rejoignent
 const RISE_DUR = 1 // s — durée de la montée du rideau
 
 export function IntroAnimation() {
@@ -46,28 +45,28 @@ export function IntroAnimation() {
       initial={{ y: 0 }}
       animate={{ y: stage === 'rise' ? '-100%' : 0 }}
       transition={{ duration: RISE_DUR, ease: curtainEase }}
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-5 overflow-hidden bg-[#0e0d0b] will-change-transform sm:gap-6"
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-0 overflow-hidden bg-[#0e0d0b] will-change-transform"
     >
-      {/* Monogramme S — apparition en fondu */}
+      {/* Monogramme S — descend du haut vers le centre */}
       <motion.img
         src={brandAssets.monogramWhite}
         alt="Studio M"
         draggable={false}
-        initial={{ opacity: 0, scale: 0.94 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: LOGO_IN, ease }}
+        initial={{ opacity: 0, y: '-55vh' }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: ENTER_DUR, ease }}
         className="h-40 w-40 object-contain sm:h-52 sm:w-52 lg:h-64 lg:w-64"
       />
-      {/* « studio m » — fondu décalé d'environ 0,5 s après le logo */}
+      {/* « studio m » — monte du bas vers le centre, rejoint le monogramme */}
       <motion.img
         src={brandAssets.wordmarkWhite}
         alt=""
         aria-hidden
         draggable={false}
-        initial={{ opacity: 0, y: 8 }}
+        initial={{ opacity: 0, y: '55vh' }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: LOGO_IN, delay: WORDMARK_DELAY, ease }}
-        className="h-20 w-auto object-contain sm:h-28 lg:h-32"
+        transition={{ duration: ENTER_DUR, ease }}
+        className="-mt-6 h-40 w-auto object-contain sm:-mt-10 sm:h-52 lg:-mt-14 lg:h-60"
       />
     </motion.div>
   )

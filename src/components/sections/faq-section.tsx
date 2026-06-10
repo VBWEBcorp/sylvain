@@ -13,7 +13,7 @@ export function FaqSection({ faqs = homeFaqs }: { faqs?: Faq[] }) {
   const [open, setOpen] = useState<number | null>(0)
 
   return (
-    <section className="bg-[var(--brand-cream)] pb-24 pt-20 sm:pb-32 sm:pt-28">
+    <section className="bg-white pb-24 pt-20 sm:pb-32 sm:pt-28">
       <div className="mx-auto max-w-[860px] px-6 sm:px-8">
         <div className="text-center">
           <p className="text-[11px] uppercase tracking-[0.32em] text-foreground/55">
