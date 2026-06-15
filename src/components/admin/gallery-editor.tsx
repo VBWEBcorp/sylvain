@@ -1,11 +1,24 @@
 'use client'
 
-import { Image as ImageIcon, Link2, Loader2, Trash2, UploadCloud } from 'lucide-react'
+import {
+  Image as ImageIcon,
+  Link2,
+  Loader2,
+  RectangleHorizontal,
+  RectangleVertical,
+  Trash2,
+  UploadCloud,
+} from 'lucide-react'
 import { useRef, useState } from 'react'
+
+import type { PhotoOrientation } from '@/lib/projects'
 
 type Props = {
   value: string[]
   onChange: (next: string[]) => void
+  // Orientation forcée par URL de photo. Absente = « auto » (ratio naturel).
+  orientations?: Record<string, PhotoOrientation>
+  onOrientationChange?: (url: string, orientation: PhotoOrientation | 'auto') => void
   label?: string
   helpText?: string
 }
@@ -19,6 +32,8 @@ function authHeader(): Record<string, string> {
 export function GalleryEditor({
   value,
   onChange,
+  orientations,
+  onOrientationChange,
   label = 'Photos',
   helpText = 'Glissez vos photos ici, parcourez votre ordinateur, ou collez une URL.',
 }: Props) {
@@ -28,6 +43,7 @@ export function GalleryEditor({
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [overIndex, setOverIndex] = useState<number | null>(null)
   const [bulkUrls, setBulkUrls] = useState('')
+  const [error, setError] = useState<string | null>(null)
 
   async function uploadFile(file: File): Promise<string | null> {
     const form = new FormData()
@@ -38,8 +54,22 @@ export function GalleryEditor({
       body: form,
     })
     if (!res.ok) {
-      const err = await res.json().catch(() => ({}))
-      console.error('Upload failed', err)
+      if (res.status === 401) {
+        setError(
+          'Votre session a expiré. Redirection vers la page de connexion…'
+        )
+        // Token mort : on le purge et on renvoie vers la connexion pour que le
+        // client se reconnecte proprement (plutôt que de buter sur des 401).
+        localStorage.removeItem('authToken')
+        localStorage.removeItem('authUser')
+        setTimeout(() => {
+          window.location.href = '/admin/login'
+        }, 1500)
+      } else {
+        const err = await res.json().catch(() => ({}))
+        setError(`Échec de l'envoi de « ${file.name} »${err?.error ? ` : ${err.error}` : ''}.`)
+      }
+      console.error('Upload failed', res.status)
       return null
     }
     const data = await res.json()
@@ -49,6 +79,7 @@ export function GalleryEditor({
   async function handleFiles(files: FileList | File[]) {
     const list = Array.from(files).filter((f) => f.type.startsWith('image/'))
     if (list.length === 0) return
+    setError(null)
     setUploading((c) => c + list.length)
     try {
       const results = await Promise.all(list.map((f) => uploadFile(f)))
@@ -147,6 +178,12 @@ export function GalleryEditor({
         ) : null}
       </div>
 
+      {error ? (
+        <p className="mt-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">
+          {error}
+        </p>
+      ) : null}
+
       {/* Coller des URLs */}
       <details className="mt-3">
         <summary className="inline-flex cursor-pointer items-center gap-2 text-[12px] text-muted-foreground hover:text-foreground">
@@ -181,8 +218,10 @@ export function GalleryEditor({
           <p className="text-[13px]">Aucune photo pour l'instant.</p>
         </div>
       ) : (
-        <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-          {value.map((src, i) => (
+        <ul className="mt-6 grid grid-cols-2 items-start gap-3 sm:grid-cols-3 md:grid-cols-4">
+          {value.map((src, i) => {
+            const orient = orientations?.[src]
+            return (
             <li
               key={src + i}
               draggable
@@ -207,67 +246,133 @@ export function GalleryEditor({
                 setDragIndex(null)
                 setOverIndex(null)
               }}
-              className={`group relative aspect-[3/4] overflow-hidden rounded-md border bg-muted transition-all ${
-                overIndex === i && dragIndex !== null && dragIndex !== i
-                  ? 'border-foreground ring-2 ring-foreground/40'
-                  : 'border-border'
-              } ${dragIndex === i ? 'opacity-50' : ''}`}
+              className={`group ${dragIndex === i ? 'opacity-50' : ''}`}
             >
-              <img src={src} alt="" className="h-full w-full cursor-grab object-cover" />
+              {/* Aperçu au ratio choisi : portrait 3:4, paysage 3:2, auto 3:4 */}
+              <div
+                className={`relative overflow-hidden rounded-md border bg-muted transition-all ${
+                  orient === 'paysage' ? 'aspect-[3/2]' : 'aspect-[3/4]'
+                } ${
+                  overIndex === i && dragIndex !== null && dragIndex !== i
+                    ? 'border-foreground ring-2 ring-foreground/40'
+                    : 'border-border'
+                }`}
+              >
+                <img src={src} alt="" className="h-full w-full cursor-grab object-cover" />
 
-              {/* Numéro d'ordre */}
-              <span className="absolute top-2 left-2 rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
-                {i + 1}
-              </span>
-
-              {/* Cover badge */}
-              {i === 0 ? (
-                <span className="absolute top-2 right-2 rounded-full bg-[var(--brand-cream)] px-2 py-0.5 text-[10px] uppercase tracking-widest text-foreground/80">
-                  Cover
+                {/* Numéro d'ordre */}
+                <span className="absolute top-2 left-2 rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
+                  {i + 1}
                 </span>
-              ) : null}
 
-              {/* Actions */}
-              <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-1 bg-gradient-to-t from-black/70 to-transparent px-2 pb-2 pt-6 opacity-0 transition-opacity group-hover:opacity-100">
-                <div className="flex gap-1">
-                  <IconBtn
-                    title="Mettre en premier (cover)"
-                    onClick={() => move(i, 0)}
-                    disabled={i === 0}
+                {/* Cover badge */}
+                {i === 0 ? (
+                  <span className="absolute top-2 right-2 rounded-full bg-[var(--brand-cream)] px-2 py-0.5 text-[10px] uppercase tracking-widest text-foreground/80">
+                    Cover
+                  </span>
+                ) : null}
+
+                {/* Actions */}
+                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-1 bg-gradient-to-t from-black/70 to-transparent px-2 pb-2 pt-6 opacity-0 transition-opacity group-hover:opacity-100">
+                  <div className="flex gap-1">
+                    <IconBtn
+                      title="Mettre en premier (cover)"
+                      onClick={() => move(i, 0)}
+                      disabled={i === 0}
+                    >
+                      ★
+                    </IconBtn>
+                    <IconBtn title="Reculer" onClick={() => move(i, Math.max(0, i - 1))} disabled={i === 0}>
+                      ←
+                    </IconBtn>
+                    <IconBtn
+                      title="Avancer"
+                      onClick={() => move(i, Math.min(value.length - 1, i + 1))}
+                      disabled={i === value.length - 1}
+                    >
+                      →
+                    </IconBtn>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => remove(i)}
+                    className="rounded-full bg-white/15 p-1.5 text-white hover:bg-red-500/80"
+                    aria-label="Supprimer la photo"
                   >
-                    ★
-                  </IconBtn>
-                  <IconBtn title="Reculer" onClick={() => move(i, Math.max(0, i - 1))} disabled={i === 0}>
-                    ←
-                  </IconBtn>
-                  <IconBtn
-                    title="Avancer"
-                    onClick={() => move(i, Math.min(value.length - 1, i + 1))}
-                    disabled={i === value.length - 1}
-                  >
-                    →
-                  </IconBtn>
+                    <Trash2 className="size-3.5" />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => remove(i)}
-                  className="rounded-full bg-white/15 p-1.5 text-white hover:bg-red-500/80"
-                  aria-label="Supprimer la photo"
-                >
-                  <Trash2 className="size-3.5" />
-                </button>
               </div>
+
+              {/* Cadrage dans le carrousel du site : auto / portrait / paysage */}
+              {onOrientationChange ? (
+                <div className="mt-1.5 flex items-center justify-center gap-1">
+                  <OrientBtn
+                    active={!orient}
+                    title="Auto : la photo garde son ratio naturel"
+                    onClick={() => onOrientationChange(src, 'auto')}
+                  >
+                    Auto
+                  </OrientBtn>
+                  <OrientBtn
+                    active={orient === 'portrait'}
+                    title="Afficher en portrait (cadre vertical)"
+                    onClick={() => onOrientationChange(src, 'portrait')}
+                  >
+                    <RectangleVertical className="size-3.5" />
+                  </OrientBtn>
+                  <OrientBtn
+                    active={orient === 'paysage'}
+                    title="Afficher en paysage (cadre horizontal)"
+                    onClick={() => onOrientationChange(src, 'paysage')}
+                  >
+                    <RectangleHorizontal className="size-3.5" />
+                  </OrientBtn>
+                </div>
+              ) : null}
             </li>
-          ))}
+            )
+          })}
         </ul>
       )}
 
       {value.length > 1 ? (
         <p className="mt-3 text-[11px] italic text-muted-foreground">
           Astuce : glissez-déposez une photo pour la réorganiser. La première sert de cover.
+          {onOrientationChange
+            ? ' Les boutons sous chaque photo choisissent son cadrage sur le site : auto (ratio naturel), portrait ou paysage.'
+            : ''}
         </p>
       ) : null}
     </div>
+  )
+}
+
+function OrientBtn({
+  children,
+  onClick,
+  title,
+  active,
+}: {
+  children: React.ReactNode
+  onClick: () => void
+  title: string
+  active: boolean
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      aria-pressed={active}
+      className={`inline-flex h-6 min-w-7 items-center justify-center rounded-md border px-1.5 text-[10px] font-medium transition-colors ${
+        active
+          ? 'border-foreground bg-foreground text-[var(--brand-cream)]'
+          : 'border-border bg-background text-muted-foreground hover:text-foreground'
+      }`}
+    >
+      {children}
+    </button>
   )
 }
 

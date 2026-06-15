@@ -1,7 +1,19 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git restore *)"
+      "Bash(git restore *)",
+      "Bash(mv .env.local.bak .env.local)",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000)",
+      "Bash(echo \"home: $\\(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000\\)\")",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/projets)",
+      "Bash(echo \"projets: $\\(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/projets\\)\")",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' http://localhost:3003)",
+      "Bash(echo \"3003 home: $\\(curl -s -o /dev/null -w '%{http_code}' http://localhost:3003\\)\")",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' http://localhost:3003/projets)",
+      "Bash(echo \"3003 projets: $\\(curl -s -o /dev/null -w '%{http_code}' http://localhost:3003/projets\\)\")",
+      "Bash(git fetch *)",
+      "Bash(git rev-list *)",
+      "PowerShell(node --env-file=.env.local scripts/set-titles.mjs; Remove-Item scripts/set-titles.mjs -Force; if \\(-not \\(Get-ChildItem scripts -ErrorAction SilentlyContinue\\)\\) { Remove-Item scripts -Force })"
     ]
   }
 }

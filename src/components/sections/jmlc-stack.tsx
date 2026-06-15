@@ -38,17 +38,45 @@ export function JmlcStack({ projects }: { projects: Project[] }) {
 
 function ProjectCarousel({ project, likes }: { project: Project; likes: Likes }) {
   const images = Array.from(new Set([project.cover, ...project.gallery])).filter(Boolean)
+  // Orientation choisie dans l'admin : portrait → cadre 3:4, paysage → cadre 3:2
+  // (recadrage object-cover), sinon ratio naturel. Hauteur identique pour toutes.
+  const orientationOf = (src: string) =>
+    project.orientations?.find((o) => o.url === src)?.orientation
+  const frameClass = (src: string) => {
+    const o = orientationOf(src)
+    if (o === 'portrait') return 'aspect-[3/4]'
+    if (o === 'paysage') return 'aspect-[3/2]'
+    return ''
+  }
+  // Largeur d'une photo dans le carrousel (hauteur identique pour toutes).
+  // Portrait/auto = 1 créneau → 5 côte à côte sur ordinateur (3 tablette, 1 mobile).
+  // Paysage = 2 créneaux → photo large qui « casse » la grille et alterne.
+  // RÈGLE : les 5 PREMIÈRES photos restent toujours en portrait (5 côte à côte
+  // garanti, quoi qu'il arrive). Les variations paysage n'agissent qu'à partir
+  // de la 6ᵉ photo, même si l'admin a mis « paysage » avant.
+  const cellBasis = (src: string, i: number) =>
+    i >= 5 && orientationOf(src) === 'paysage'
+      ? 'basis-[92%] sm:basis-[calc((100%_-_10mm)/3*2_+_5mm)] lg:basis-[calc((100%_-_20mm)/5*2_+_5mm)]'
+      : 'basis-[80%] sm:basis-[calc((100%_-_10mm)/3)] lg:basis-[calc((100%_-_20mm)/5)]'
   const trackRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
 
-  // Largeur réelle d'une vignette (image + gouttière), mesurée dans le DOM
-  // pour rester juste malgré le gap de 5 mm entre les images.
-  function itemWidth(el: HTMLDivElement) {
-    const first = el.firstElementChild as HTMLElement | null
-    if (!first) return el.clientWidth
-    const gap = parseFloat(getComputedStyle(el).columnGap || '0') || 0
-    return first.getBoundingClientRect().width + gap
+  // Index actif = la vignette dont le bord gauche est le plus proche du bord
+  // gauche du conteneur. Robuste aux largeurs variables (portrait/paysage).
+  function computeActive(el: HTMLDivElement) {
+    const base = el.getBoundingClientRect().left
+    const kids = Array.from(el.children) as HTMLElement[]
+    let best = 0
+    let bestDist = Infinity
+    kids.forEach((k, i) => {
+      const d = Math.abs(k.getBoundingClientRect().left - base)
+      if (d < bestDist) {
+        bestDist = d
+        best = i
+      }
+    })
+    return best
   }
 
   useEffect(() => {
@@ -57,10 +85,7 @@ function ProjectCarousel({ project, likes }: { project: Project; likes: Likes })
     let raf = 0
     const onScroll = () => {
       cancelAnimationFrame(raf)
-      raf = requestAnimationFrame(() => {
-        const idx = Math.round(el.scrollLeft / itemWidth(el))
-        setActive(Math.min(Math.max(idx, 0), images.length - 1))
-      })
+      raf = requestAnimationFrame(() => setActive(computeActive(el)))
     }
     el.addEventListener('scroll', onScroll, { passive: true })
     return () => {
@@ -69,10 +94,14 @@ function ProjectCarousel({ project, likes }: { project: Project; likes: Likes })
     }
   }, [images.length])
 
-  function scrollBy(direction: -1 | 1) {
+  function scrollByOne(direction: -1 | 1) {
     const el = trackRef.current
     if (!el) return
-    el.scrollBy({ left: direction * itemWidth(el), behavior: 'smooth' })
+    const kids = Array.from(el.children) as HTMLElement[]
+    const target = kids[Math.min(Math.max(computeActive(el) + direction, 0), kids.length - 1)]
+    if (!target) return
+    const delta = target.getBoundingClientRect().left - el.getBoundingClientRect().left
+    el.scrollTo({ left: el.scrollLeft + delta, behavior: 'smooth' })
   }
 
   const empty = images.length === 0
@@ -99,19 +128,22 @@ function ProjectCarousel({ project, likes }: { project: Project; likes: Likes })
             </div>
           </div>
         ) : single ? (
-          <div className="group/photo relative w-full">
+          <div className="group/photo relative flex h-[56vh] max-h-[560px] w-full items-center justify-center sm:h-[440px] lg:h-[480px]">
             <button
               type="button"
               onClick={() => setLightboxIndex(0)}
-              className="block aspect-[16/10] w-full overflow-hidden"
+              className={cn('block h-full overflow-hidden', frameClass(images[0]))}
               aria-label="Agrandir la photo"
             >
               <img
-                src={optimizedImage(images[0], { width: 1400 })}
+                src={optimizedImage(images[0], { width: 1600 })}
                 alt={project.title}
                 loading="lazy"
                 decoding="async"
-                className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover/photo:scale-[1.02]"
+                className={cn(
+                  'h-full object-cover transition-transform duration-[1200ms] ease-out group-hover/photo:scale-[1.02]',
+                  orientationOf(images[0]) ? 'w-full' : 'w-auto'
+                )}
               />
             </button>
             <LikeButton
@@ -124,13 +156,16 @@ function ProjectCarousel({ project, likes }: { project: Project; likes: Likes })
           <div className="group relative">
             <div
               ref={trackRef}
-              className="hide-scrollbar flex w-full snap-x snap-mandatory gap-[5mm] overflow-x-auto"
+              className="hide-scrollbar flex h-[56vh] max-h-[560px] w-full snap-x snap-mandatory gap-[5mm] overflow-x-auto sm:h-[440px] lg:h-[480px]"
               style={{ scrollSnapType: 'x mandatory' }}
             >
               {images.map((src, i) => (
                 <div
                   key={i}
-                  className="group/photo relative aspect-[3/4] w-[84%] shrink-0 snap-start overflow-hidden sm:w-[calc((100%-10mm)/3)]"
+                  className={cn(
+                    'group/photo relative h-full shrink-0 grow-0 snap-start overflow-hidden',
+                    cellBasis(src, i)
+                  )}
                 >
                   <button
                     type="button"
@@ -139,7 +174,7 @@ function ProjectCarousel({ project, likes }: { project: Project; likes: Likes })
                     className="block h-full w-full overflow-hidden"
                   >
                     <img
-                      src={optimizedImage(src, { width: 1000 })}
+                      src={optimizedImage(src, { width: 1300 })}
                       alt=""
                       loading={i === 0 ? 'eager' : 'lazy'}
                       decoding="async"
@@ -159,7 +194,7 @@ function ProjectCarousel({ project, likes }: { project: Project; likes: Likes })
             <button
               type="button"
               aria-label="Photo précédente"
-              onClick={() => scrollBy(-1)}
+              onClick={() => scrollByOne(-1)}
               className="absolute top-1/2 left-3 hidden -translate-y-1/2 items-center justify-center rounded-full bg-white/85 p-2 text-foreground shadow-sm backdrop-blur-sm transition hover:bg-white sm:flex"
             >
               <ChevronLeft className="size-4" />
@@ -167,7 +202,7 @@ function ProjectCarousel({ project, likes }: { project: Project; likes: Likes })
             <button
               type="button"
               aria-label="Photo suivante"
-              onClick={() => scrollBy(1)}
+              onClick={() => scrollByOne(1)}
               className="absolute top-1/2 right-3 hidden -translate-y-1/2 items-center justify-center rounded-full bg-white/85 p-2 text-foreground shadow-sm backdrop-blur-sm transition hover:bg-white sm:flex"
             >
               <ChevronRight className="size-4" />
@@ -180,7 +215,7 @@ function ProjectCarousel({ project, likes }: { project: Project; likes: Likes })
         )}
       </div>
 
-      {images.length > 1 ? (
+      {images.length > 1 && images.length <= 12 ? (
         <div className="mt-4 flex justify-center gap-1.5">
           {images.map((_, i) => (
             <span

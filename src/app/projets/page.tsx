@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Réalisations',
   description:
-    "Sélection de réalisations Studio M : appartements et maisons rénovés à Paris et en Île-de-France.",
+    "Réalisations de Studio M : appartements et maisons rénovés sur mesure à Paris et en Île-de-France, par l'architecte d'intérieur Sylvain Marceau.",
   alternates: { canonical: '/projets' },
 }
 

@@ -48,8 +48,27 @@ export default function AdminLayout({
       return
     }
 
-    setAuthenticated(true)
-    setLoading(false)
+    // On ne se contente pas de constater qu'un token existe : on vérifie qu'il
+    // est encore valide (non expiré, bon secret). Sinon un token périmé laisse
+    // « entrer » dans l'admin mais chaque upload / enregistrement échoue en 401
+    // sans explication. Token mort → on le purge et on renvoie vers la connexion.
+    fetch('/api/auth/verify', { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => {
+        if (r.ok) {
+          setAuthenticated(true)
+          setLoading(false)
+        } else {
+          localStorage.removeItem('authToken')
+          localStorage.removeItem('authUser')
+          router.push('/admin/login')
+        }
+      })
+      .catch(() => {
+        // Coupure réseau : on n'enferme pas l'utilisateur dehors. Les API
+        // d'écriture restent protégées côté serveur de toute façon.
+        setAuthenticated(true)
+        setLoading(false)
+      })
   }, [router, isPublicPage])
 
   if (loading) return null

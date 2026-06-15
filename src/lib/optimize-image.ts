@@ -12,7 +12,9 @@ export async function optimizeImage(
 ): Promise<{ buffer: Buffer; contentType: string; ext: string }> {
   const { maxWidth = 1920, maxHeight = 1080, quality = 80 } = options
 
-  const image = sharp(buffer)
+  // .rotate() applique l'orientation EXIF puis la supprime : une photo prise en
+  // paysage s'affiche en paysage (et non tournée), sans aucune action manuelle.
+  const image = sharp(buffer).rotate()
   const metadata = await image.metadata()
 
   // Resize si nécessaire

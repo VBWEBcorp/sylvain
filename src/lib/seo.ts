@@ -1,7 +1,7 @@
 export const siteConfig = {
   name: 'Studio M',
   brandLine: "Architecture d'intérieur",
-  url: 'https://www.studio-m.paris',
+  url: 'https://studio-m-paris.fr',
   locale: 'fr_FR',
   description:
     "Studio M · Sylvain Marceau, architecte d'intérieur à Paris. Rénovation d'appartements et de maisons sur mesure. Du concept au chantier.",

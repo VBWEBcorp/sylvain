@@ -5,8 +5,7 @@ import Link from 'next/link'
 import { ArrowLeft, Check } from 'lucide-react'
 
 import { GalleryEditor } from '@/components/admin/gallery-editor'
-import { ImageField as ImageUploadField } from '@/components/admin/image-field'
-import type { PhotoCredit, Project } from '@/lib/projects'
+import type { PhotoCredit, PhotoOrientation, Project } from '@/lib/projects'
 
 function authHeader(): Record<string, string> {
   if (typeof window === 'undefined') return {}
@@ -54,10 +53,15 @@ export default function AdminProjectEditPage({
     if (!project) return
     setSaving(true)
     try {
+      const payload = {
+        ...project,
+        // Un projet avec des photos est forcément publié (pas « Coming soon »).
+        comingSoon: (project.gallery?.length ?? 0) > 0 ? false : project.comingSoon,
+      }
       const res = await fetch(`/api/projects/${slug}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...authHeader() },
-        body: JSON.stringify(project),
+        body: JSON.stringify(payload),
       })
       if (!res.ok) throw new Error('save failed')
       setJustSaved(true)
@@ -104,13 +108,14 @@ export default function AdminProjectEditPage({
           </div>
         </div>
 
-        {/* Informations générales */}
-        <Block title="Informations">
+        {/* Informations */}
+        <Block title="Informations" subtitle="Le nom s'affiche tel quel sur le site, suivi du descripteur.">
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Titre">
+            <Field label="Nom du projet (affiché sur le site)">
               <input
                 value={p.title}
                 onChange={(e) => setField('title', e.target.value)}
+                placeholder="ex : Appartement Royal Monceau"
                 className={inputCls}
               />
             </Field>
@@ -127,109 +132,82 @@ export default function AdminProjectEditPage({
                 ))}
               </select>
             </Field>
-            <Field label="Localisation">
-              <input
-                value={p.location}
-                onChange={(e) => setField('location', e.target.value)}
-                placeholder="ex : Paris 8e · Monceau"
-                className={inputCls}
-              />
-            </Field>
-            <Field label="Année">
-              <input
-                value={p.year}
-                onChange={(e) => setField('year', e.target.value)}
-                className={inputCls}
-              />
-            </Field>
-            <Field label="Surface">
+            <Field label="Descripteur (à côté du nom, optionnel)">
               <input
                 value={p.surface}
                 onChange={(e) => setField('surface', e.target.value)}
-                placeholder="ex : 120 m²"
-                className={inputCls}
-              />
-            </Field>
-            <Field label="Durée du chantier">
-              <input
-                value={p.duration}
-                onChange={(e) => setField('duration', e.target.value)}
-                placeholder="ex : 4 mois"
+                placeholder="ex : 50 m² · Dolce vita"
                 className={inputCls}
               />
             </Field>
           </div>
         </Block>
 
-        {/* Statut */}
-        <Block
-          title="Statut"
-          subtitle="Pour un projet pas encore shooté : affiche un bloc « Coming soon » à la place de la galerie."
-        >
-          <label className="flex items-center gap-2.5 text-sm">
-            <input
-              type="checkbox"
-              checked={p.comingSoon ?? false}
-              onChange={(e) => setField('comingSoon', e.target.checked)}
-              className="size-4"
-            />
-            Coming soon (galerie à venir)
-          </label>
-          {p.comingSoon ? (
-            <Field label="Date / mention de shooting">
+        {/* Statut — pertinent uniquement tant qu'il n'y a pas de photos.
+            Dès qu'une photo est ajoutée, le projet est publié automatiquement. */}
+        {(p.gallery?.length ?? 0) === 0 ? (
+          <Block
+            title="Statut"
+            subtitle="Tant qu'il n'y a pas de photos, le projet peut afficher un bloc « Coming soon ». Dès que vous ajoutez des photos, il passe automatiquement en ligne."
+          >
+            <label className="flex items-center gap-2.5 text-sm">
               <input
-                value={p.shootingDate ?? ''}
-                onChange={(e) => setField('shootingDate', e.target.value)}
-                placeholder="ex : Shooting en juillet"
-                className={inputCls}
+                type="checkbox"
+                checked={p.comingSoon ?? false}
+                onChange={(e) => setField('comingSoon', e.target.checked)}
+                className="size-4"
               />
-            </Field>
-          ) : null}
-        </Block>
-
-        {/* Description */}
-        <Block title="Texte du projet">
-          <Field label="Introduction (phrase courte)">
-            <textarea
-              value={p.intro}
-              onChange={(e) => setField('intro', e.target.value)}
-              rows={2}
-              className={inputCls}
-            />
-          </Field>
-          <Field label="Description (un paragraphe par ligne vide)">
-            <textarea
-              value={p.description.join('\n\n')}
-              onChange={(e) =>
-                setField(
-                  'description',
-                  e.target.value
-                    .split(/\n{2,}/)
-                    .map((s) => s.trim())
-                    .filter(Boolean)
-                )
-              }
-              rows={8}
-              className={inputCls}
-            />
-            <p className="mt-1 text-[11px] text-muted-foreground">
-              Séparez les paragraphes par une ligne vide.
+              Coming soon (galerie à venir)
+            </label>
+            {p.comingSoon ? (
+              <Field label="Date / mention de shooting">
+                <input
+                  value={p.shootingDate ?? ''}
+                  onChange={(e) => setField('shootingDate', e.target.value)}
+                  placeholder="ex : Shooting en juillet"
+                  className={inputCls}
+                />
+              </Field>
+            ) : null}
+          </Block>
+        ) : (
+          <Block title="Statut">
+            <p className="text-sm text-muted-foreground">
+              ✅ Ce projet a {p.gallery.length} photo{p.gallery.length > 1 ? 's' : ''} — il est{' '}
+              <span className="font-medium text-foreground">publié</span> sur le site.
             </p>
-          </Field>
-          <StringList
-            label="Interventions (une par ligne)"
-            value={p.services}
-            onChange={(v) => setField('services', v)}
-          />
-        </Block>
+          </Block>
+        )}
 
         {/* Galerie principale — l'élément le plus important */}
-        <Block title="Photos du projet" subtitle="La première photo sert de couverture. Glissez-déposez pour réorganiser.">
+        <Block
+          title="Photos du projet"
+          subtitle="La première photo sert de couverture. Glissez-déposez pour réorganiser. Sous chaque photo, choisissez son cadrage dans le carrousel : auto, portrait ou paysage."
+        >
           <GalleryEditor
             value={p.gallery.length > 0 ? p.gallery : p.cover ? [p.cover] : []}
+            orientations={Object.fromEntries(
+              (p.orientations ?? []).map((o) => [o.url, o.orientation])
+            )}
+            onOrientationChange={(url, orientation) => {
+              const rest = (p.orientations ?? []).filter((o) => o.url !== url)
+              setField(
+                'orientations',
+                orientation === 'auto'
+                  ? rest
+                  : [...rest, { url, orientation: orientation as PhotoOrientation }]
+              )
+            }}
             onChange={(next) => {
               setField('gallery', next)
               setField('cover', next[0] ?? '')
+              // On purge les orientations des photos retirées de la galerie.
+              setField(
+                'orientations',
+                (p.orientations ?? []).filter((o) => next.includes(o.url))
+              )
+              // Dès qu'il y a des photos, le projet est publié : on retire « Coming soon ».
+              if (next.length > 0) setField('comingSoon', false)
             }}
           />
         </Block>
@@ -239,21 +217,6 @@ export default function AdminProjectEditPage({
           subtitle="Nom du photographe / magazine + lien Instagram. Affichés sous la galerie sur le site."
         >
           <CreditsEditor value={p.credits ?? []} onChange={(v) => setField('credits', v)} />
-        </Block>
-
-        <Block title="Avant / Après (optionnel)" subtitle="Renseignez les deux photos pour activer le slider comparatif.">
-          <div className="grid gap-5 sm:grid-cols-2">
-            <ImageUploadField
-              label="Avant"
-              value={p.before ?? ''}
-              onChange={(v) => setField('before', v || undefined)}
-            />
-            <ImageUploadField
-              label="Après"
-              value={p.after ?? ''}
-              onChange={(v) => setField('after', v || undefined)}
-            />
-          </div>
         </Block>
 
         {/* Sauvegarde sticky bas */}
@@ -318,34 +281,6 @@ function Field({
       <span className="mb-1.5 block text-xs font-medium">{label}</span>
       {children}
     </label>
-  )
-}
-
-function StringList({
-  label,
-  value,
-  onChange,
-}: {
-  label: string
-  value: string[]
-  onChange: (v: string[]) => void
-}) {
-  return (
-    <Field label={label}>
-      <textarea
-        value={value.join('\n')}
-        onChange={(e) =>
-          onChange(
-            e.target.value
-              .split('\n')
-              .map((s) => s.trim())
-              .filter(Boolean)
-          )
-        }
-        rows={4}
-        className={inputCls}
-      />
-    </Field>
   )
 }
 

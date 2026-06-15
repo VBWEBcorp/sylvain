@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
     duration: body.duration ?? '',
     cover: body.cover ?? '',
     gallery: body.gallery ?? [],
+    orientations: body.orientations ?? [],
     before: body.before,
     after: body.after,
     intro: body.intro ?? '',

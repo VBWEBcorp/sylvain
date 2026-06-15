@@ -7,7 +7,7 @@ import { readContent } from '@/lib/content-store'
 export const dynamic = 'force-dynamic'
 
 const description =
-  'Contactez-nous pour discuter de votre projet. Devis gratuit, réponse rapide.'
+  "Contactez Studio M, architecte d'intérieur à Paris, pour votre projet de rénovation ou d'aménagement intérieur. Premier échange et devis gratuits."
 
 export const metadata: Metadata = {
   title: 'Contact',

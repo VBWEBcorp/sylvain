@@ -54,8 +54,7 @@ const DEFAULTS: SiteContent = {
   },
   home: {
     eyebrow: "Architecte d'intérieur · Paris",
-    heroImage:
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=85',
+    heroImage: '/hero-accueil.webp',
   },
   studio: {
     eyebrow: "Architecte d'intérieur",
@@ -67,7 +66,7 @@ const DEFAULTS: SiteContent = {
       "Soucieux des détails et des usages, chaque projet ouvre la réflexion du travail de la lumière, de la rencontre des matériaux et des textures, des formes et des circulations.",
       "Les conceptions maîtrisées donnent à l'espace un caractère sur mesure, insufflé par les références artistiques plurielles et Mid-century, la mémoire des lieux, la volonté formelle d'une exécution qualitative et durable. Sylvain donne une vision 360 degrés au projet, de la conception à l'exécution, jusqu'à la réception du chantier.",
     ],
-    portrait: 'https://i.ibb.co/7t5DF2X2/1D3A0647.jpg',
+    portrait: '/portrait-sylvain.webp',
   },
   contact: {
     eyebrow: '',

@@ -161,9 +161,17 @@ export default function AdminProjectsPage() {
                   ) : null}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{p.title}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="truncate text-sm font-medium">{p.title}</p>
+                    {(p.gallery?.length ?? 0) === 0 && p.comingSoon ? (
+                      <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-amber-700">
+                        Coming soon
+                      </span>
+                    ) : null}
+                  </div>
                   <p className="truncate text-xs text-muted-foreground">
-                    {p.category} · {p.location} · {p.year}
+                    {p.gallery?.length ?? 0} photo{(p.gallery?.length ?? 0) > 1 ? 's' : ''} · {p.category}
+                    {p.location ? ` · ${p.location}` : ''}
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-1">

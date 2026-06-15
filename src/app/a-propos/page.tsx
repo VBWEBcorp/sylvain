@@ -7,7 +7,7 @@ import { readContent } from '@/lib/content-store'
 export const dynamic = 'force-dynamic'
 
 const description =
-  "Studio M · Sylvain Marceau, architecte d'intérieur à Paris. Approche, méthode et parti-pris du studio."
+  "Studio M, c'est Sylvain Marceau, architecte d'intérieur à Paris : son approche, sa méthode et sa vision du projet sur mesure, de la conception au chantier."
 
 export const metadata: Metadata = {
   title: 'À propos',

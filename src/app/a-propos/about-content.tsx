@@ -11,7 +11,7 @@ export function AboutContent({ studio }: { studio: SiteContent['studio'] }) {
   return (
     <section className="bg-[var(--brand-cream)] pt-32 pb-24 sm:pt-40 sm:pb-32">
       <div className="mx-auto max-w-[1200px] px-6 sm:px-10 lg:px-16">
-        <div className="grid grid-cols-1 items-center gap-14 border border-foreground/15 p-8 sm:p-12 lg:grid-cols-12 lg:gap-20 lg:p-16">
+        <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-12 lg:gap-20">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}

@@ -14,6 +14,12 @@ function toPlain(d: Record<string, unknown>): Project {
         ...(c.url ? { url: c.url } : {}),
       }))
     : []
+  const orientations = Array.isArray(d.orientations)
+    ? (d.orientations as { url: string; orientation: 'portrait' | 'paysage' }[]).map((o) => ({
+        url: o.url,
+        orientation: o.orientation,
+      }))
+    : []
   return {
     slug: d.slug as string,
     title: d.title as string,
@@ -24,6 +30,7 @@ function toPlain(d: Record<string, unknown>): Project {
     duration: (d.duration as string) ?? '',
     cover: (d.cover as string) ?? '',
     gallery: (d.gallery as string[]) ?? [],
+    orientations,
     before: (d.before as string) || undefined,
     after: (d.after as string) || undefined,
     intro: (d.intro as string) ?? '',

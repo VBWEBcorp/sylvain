@@ -104,11 +104,6 @@ export function Lightbox({
             </button>
           ) : null}
 
-          {/* Compteur de photo — centré en haut */}
-          <p className="absolute top-7 left-1/2 -translate-x-1/2 text-[11px] uppercase tracking-[0.3em] text-white/65">
-            {String((index ?? 0) + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
-          </p>
-
           {/* Flèche gauche */}
           {total > 1 ? (
             <button
@@ -124,18 +119,30 @@ export function Lightbox({
             </button>
           ) : null}
 
-          {/* Image */}
-          <motion.img
-            key={index}
-            src={optimizedImage(images[index ?? 0], { width: 2000 })}
-            alt=""
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.35, ease }}
+          {/* Compteur au-dessus · image · légende en-dessous (jamais sur la photo) */}
+          <div
             onClick={(e) => e.stopPropagation()}
-            className="max-h-[88vh] max-w-[92vw] object-contain shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
-            draggable={false}
-          />
+            className="flex max-h-[92vh] max-w-[92vw] flex-col items-center gap-4"
+          >
+            <p className="shrink-0 text-[11px] uppercase tracking-[0.3em] text-white/65">
+              {String((index ?? 0) + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+            </p>
+            <motion.img
+              key={index}
+              src={optimizedImage(images[index ?? 0], { width: 2000 })}
+              alt=""
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.35, ease }}
+              className="min-h-0 w-auto max-w-full flex-1 object-contain shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
+              draggable={false}
+            />
+            {caption ? (
+              <p className="shrink-0 text-center text-[11px] uppercase tracking-[0.3em] text-white/70">
+                {caption}
+              </p>
+            ) : null}
+          </div>
 
           {/* Flèche droite */}
           {total > 1 ? (
@@ -150,13 +157,6 @@ export function Lightbox({
             >
               <ChevronRight className="size-5" />
             </button>
-          ) : null}
-
-          {/* Légende */}
-          {caption ? (
-            <p className="pointer-events-none absolute bottom-7 left-1/2 -translate-x-1/2 text-center text-[11px] uppercase tracking-[0.3em] text-white/70">
-              {caption}
-            </p>
           ) : null}
         </motion.div>
       ) : null}

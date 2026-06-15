@@ -10,6 +10,7 @@ export interface IProject extends Document {
   duration: string
   cover: string
   gallery: string[]
+  orientations: { url: string; orientation: 'portrait' | 'paysage' }[]
   before?: string
   after?: string
   intro: string
@@ -31,6 +32,15 @@ const CreditSchema = new Schema(
   { _id: false }
 )
 
+// Orientation forcée d'une photo de la galerie (sinon : ratio naturel).
+const OrientationSchema = new Schema(
+  {
+    url: { type: String, required: true },
+    orientation: { type: String, enum: ['portrait', 'paysage'], required: true },
+  },
+  { _id: false }
+)
+
 const ProjectSchema = new Schema<IProject>(
   {
     slug: { type: String, required: true, unique: true, index: true },
@@ -42,6 +52,7 @@ const ProjectSchema = new Schema<IProject>(
     duration: { type: String, default: '' },
     cover: { type: String, default: '' },
     gallery: { type: [String], default: [] },
+    orientations: { type: [OrientationSchema], default: [] },
     before: { type: String },
     after: { type: String },
     intro: { type: String, default: '' },

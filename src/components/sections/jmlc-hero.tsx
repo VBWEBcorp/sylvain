@@ -14,21 +14,30 @@ const navLinks = [
   { to: '/contact', label: 'Contact' },
 ]
 
-const FALLBACK_HERO =
-  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=85'
+const FALLBACK_HERO = '/hero-accueil.webp'
+
+// Page de garde : sur ordinateur, 3 photos verticales côte à côte (plutôt qu'une
+// seule photo portrait recadrée violemment en plein écran paysage). Sur mobile,
+// seule la première s'affiche — le format vertical y remplit déjà l'écran.
+const HERO_IMAGES = ['/hero-accueil.webp', '/hero-accueil-2.webp', '/hero-accueil-3.webp']
 
 export function JmlcHero({ heroImage }: { heroImage?: string }) {
-  const src = heroImage || FALLBACK_HERO
+  const images = [heroImage || FALLBACK_HERO, ...HERO_IMAGES.slice(1)]
   return (
     <section className="snap-section relative h-[100svh] min-h-[600px] w-full overflow-hidden">
-      <motion.img
-        initial={{ scale: 1.06 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 2.4, ease }}
-        src={src}
-        alt=""
-        className="absolute inset-0 h-full w-full object-cover"
-      />
+      <div className="absolute inset-0 flex">
+        {images.map((src, i) => (
+          <motion.img
+            key={`${src}-${i}`}
+            initial={{ scale: 1.06 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 2.4, ease }}
+            src={src}
+            alt=""
+            className={`h-full flex-1 object-cover ${i > 0 ? 'hidden lg:block' : ''}`}
+          />
+        ))}
+      </div>
       {/* Voiles d'obscurité pour bien faire ressortir logo + nav */}
       <div className="absolute inset-0 bg-black/45" />
       <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/30 to-black/60" />

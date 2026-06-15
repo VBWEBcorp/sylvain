@@ -19,6 +19,8 @@ import { siteConfig } from '@/lib/seo'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
+  description:
+    "Studio M, architecte d'intérieur à Paris. Sylvain Marceau conçoit et rénove appartements et maisons sur mesure, du concept à la livraison du chantier.",
   alternates: { canonical: '/' },
 }
 

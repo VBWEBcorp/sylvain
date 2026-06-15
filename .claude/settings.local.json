@@ -3,7 +3,23 @@
     "allow": [
       "Bash(npm install:*)",
       "Bash(npm ls:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(grep -qiE \"ready|started|localhost:|compiled\" /tmp/../AppData/Local/Temp/claude/c--Users-conta-OneDrive-Desktop-Cursor-Sylvain/b3252234-7d42-4a3c-be07-b196f5a702d3/tasks/bz1v3c02f.output)",
+      "Bash(break)",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000__TRACKED_VAR__)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://localhost:3000/projets\")",
+      "Bash(curl -s \"http://localhost:3000/api/likes\")",
+      "Bash(curl -s -X POST \"http://localhost:3000/api/likes\" -H \"Content-Type: application/json\" -d '{\"key\":\"https://example.com/photo1.jpg\",\"delta\":1}')",
+      "Bash(curl -s -o /dev/null -w \"/admin/pages/studio -> %{http_code}\\\\n\" \"http://localhost:3000/admin/pages/studio\")",
+      "Bash(curl -s -o /dev/null -w \"/api/gallery/images -> %{http_code}\\\\n\" \"http://localhost:3000/api/gallery/images\")",
+      "Bash(curl -s \"http://localhost:3000/api/gallery/images\")",
+      "Bash(curl -s -X POST localhost:3000/api/likes -H 'Content-Type: application/json' -d '{\"key\":\"__TRACKED_VAR__\",\"delta\":1}')",
+      "Bash(curl -s localhost:3000/api/likes)",
+      "Bash(curl -s -X POST localhost:3000/api/likes -H 'Content-Type: application/json' -d '{\"key\":\"__TRACKED_VAR__\",\"delta\":-1}')",
+      "Bash(curl -s -o /dev/null -w \"Homepage status: %{http_code}\\\\n\" http://localhost:3003/)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\conta\\\\Downloads\\\\Sylvain\\\\Portrait+page degarde\" -Recurse -ErrorAction SilentlyContinue | Select-Object FullName, @{N='KB';E={[int]\\($_.Length/1KB\\)}}, LastWriteTime | Format-Table -AutoSize -Wrap)",
+      "Bash(node -e \"const sharp=require\\('sharp'\\); sharp\\('C:/Users/conta/Downloads/Sylvain/Portrait+page degarde/©JUANJEREZ_STUDIO-M-DEBUSSY-HD-0120.jpg'\\).metadata\\(\\).then\\(m=>console.log\\('w='+m.width,'h='+m.height,'orientation='+m.orientation\\)\\).catch\\(e=>console.error\\(e.message\\)\\)\")",
+      "Bash(node -e \"const sharp=require\\('sharp'\\); sharp\\('C:/Users/conta/Downloads/Sylvain/Portrait+page degarde/©JUANJEREZ_STUDIO-M-DEBUSSY-HD-0120.jpg'\\).rotate\\(\\).resize\\({height:2200,withoutEnlargement:true}\\).webp\\({quality:82}\\).toFile\\('public/hero-accueil.webp'\\).then\\(i=>console.log\\('OK',i.width+'x'+i.height,Math.round\\(i.size/1024\\)+'KB'\\)\\).catch\\(e=>console.error\\('ERR',e.message\\)\\)\")"
     ]
   }
 }

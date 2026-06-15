@@ -3,6 +3,15 @@ export type PhotoCredit = {
   url?: string
 }
 
+// Orientation d'affichage choisie par le client pour une photo de la galerie.
+// Sans surcharge, la photo s'affiche selon son ratio naturel (« auto »).
+export type PhotoOrientation = 'portrait' | 'paysage'
+
+export type PhotoOrientationOverride = {
+  url: string
+  orientation: PhotoOrientation
+}
+
 export type Project = {
   slug: string
   title: string
@@ -13,6 +22,9 @@ export type Project = {
   duration: string
   cover: string
   gallery: string[]
+  // Surcharges d'orientation par URL de photo (carrousel : même hauteur pour
+  // toutes, cadre 3:4 si portrait, 3:2 si paysage, ratio naturel sinon).
+  orientations?: PhotoOrientationOverride[]
   before?: string
   after?: string
   intro: string
