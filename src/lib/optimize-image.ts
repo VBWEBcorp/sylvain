@@ -10,7 +10,9 @@ export async function optimizeImage(
   buffer: Buffer,
   options: OptimizeOptions = {}
 ): Promise<{ buffer: Buffer; contentType: string; ext: string }> {
-  const { maxWidth = 1920, maxHeight = 1080, quality = 80 } = options
+  // Côté long capé à 2560 px (et non 1080) : indispensable pour les photos
+  // portrait, qui sinon perdaient en netteté dans le carrousel et la lightbox.
+  const { maxWidth = 2560, maxHeight = 2560, quality = 88 } = options
 
   // .rotate() applique l'orientation EXIF puis la supprime : une photo prise en
   // paysage s'affiche en paysage (et non tournée), sans aucune action manuelle.

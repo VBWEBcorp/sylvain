@@ -6,7 +6,7 @@
 // Les URLs non http(s) (uploads locaux, data URIs) sont laissées intactes.
 export function optimizedImage(
   url: string,
-  { width, quality = 78 }: { width: number; quality?: number }
+  { width, quality = 86 }: { width: number; quality?: number }
 ): string {
   if (!url || !/^https?:\/\//i.test(url)) return url
   const params = new URLSearchParams({
