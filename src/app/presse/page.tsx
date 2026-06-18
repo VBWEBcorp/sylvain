@@ -159,20 +159,21 @@ export default function PressePage() {
             travail de Sylvain Marceau.
           </p>
 
+          {/* Ordre chronologique — du plus récent (01) au plus ancien (04) */}
           <div className="mt-12 space-y-14 sm:mt-14 sm:space-y-20">
-            {/* Ligne 1 — reportage paysage + article */}
+            {/* Ligne 1 — 01 Appartement en trois villes · 02 Reportage (long) */}
             <div className="grid gap-8 lg:grid-cols-12 lg:items-start lg:gap-12">
-              <div className="lg:col-span-7">
-                <Caption n="01" label={videoMain.title} />
-                <VideoTile v={videoMain} />
-              </div>
               <div className="lg:col-span-5">
-                <Caption n="02" label={articleA.source} />
-                <ArticleTile a={articleA} />
+                <Caption n="01" label={articleB.source} />
+                <ArticleTile a={articleB} />
+              </div>
+              <div className="lg:col-span-7">
+                <Caption n="02" label={videoMain.title} />
+                <VideoTile v={videoMain} />
               </div>
             </div>
 
-            {/* Ligne 2 — format court vertical + article */}
+            {/* Ligne 2 — 03 Format court · 04 Coup double */}
             <div className="grid gap-8 lg:grid-cols-12 lg:items-start lg:gap-12">
               <div className="lg:col-span-5">
                 <div className="mx-auto max-w-[340px]">
@@ -181,8 +182,8 @@ export default function PressePage() {
                 </div>
               </div>
               <div className="lg:col-span-7">
-                <Caption n="04" label={articleB.source} />
-                <ArticleTile a={articleB} />
+                <Caption n="04" label={articleA.source} />
+                <ArticleTile a={articleA} />
               </div>
             </div>
           </div>

@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, Heart, X } from 'lucide-react'
 import { useCallback, useEffect } from 'react'
 
 import { optimizedImage } from '@/lib/img'
+import { isVideo } from '@/lib/media'
 import { cn } from '@/lib/utils'
 
 type Props = {
@@ -127,16 +128,31 @@ export function Lightbox({
             <p className="shrink-0 text-[11px] uppercase tracking-[0.3em] text-white/65">
               {String((index ?? 0) + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
             </p>
-            <motion.img
-              key={index}
-              src={optimizedImage(images[index ?? 0], { width: 2000 })}
-              alt=""
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.35, ease }}
-              className="min-h-0 w-auto max-w-full flex-1 object-contain shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
-              draggable={false}
-            />
+            {isVideo(currentSrc) ? (
+              <motion.video
+                key={index}
+                src={currentSrc}
+                controls
+                autoPlay
+                loop
+                playsInline
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.35, ease }}
+                className="min-h-0 w-auto max-w-full flex-1 object-contain shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
+              />
+            ) : (
+              <motion.img
+                key={index}
+                src={optimizedImage(currentSrc, { width: 2000 })}
+                alt=""
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.35, ease }}
+                className="min-h-0 w-auto max-w-full flex-1 object-contain shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
+                draggable={false}
+              />
+            )}
             {caption ? (
               <p className="shrink-0 text-center text-[11px] uppercase tracking-[0.3em] text-white/70">
                 {caption}

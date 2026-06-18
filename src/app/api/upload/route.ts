@@ -20,15 +20,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
-    // Vérifier le type
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml']
-    if (!allowedTypes.includes(file.type)) {
+    // Types autorisés (images + vidéos)
+    const allowedImage = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml']
+    const isVideoFile = file.type.startsWith('video/')
+    if (!allowedImage.includes(file.type) && !isVideoFile) {
       return NextResponse.json({ error: 'File type not allowed' }, { status: 400 })
     }
 
-    // Vérifier la taille (10MB max avant optimisation)
-    if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json({ error: 'File too large (max 10MB)' }, { status: 400 })
+    // Taille max : 50MB (les originaux HD dépassent souvent 10MB, d'où des
+    // envois qui échouaient). Les vidéos lourdes sont compressées en amont.
+    if (file.size > 50 * 1024 * 1024) {
+      return NextResponse.json({ error: 'File too large (max 50MB)' }, { status: 400 })
     }
 
     const rawBuffer = Buffer.from(await file.arrayBuffer())
@@ -45,6 +47,14 @@ export async function POST(request: NextRequest) {
       finalBuffer = rawBuffer
       contentType = 'image/svg+xml'
       filename = `${uniqueId}.svg`
+    } else if (isVideoFile) {
+      // Vidéo : stockée telle quelle. Les vidéos lourdes sont compressées en
+      // amont et hébergées à part (la compression serveur ne tient pas en
+      // serverless). Idéal : coller une URL de vidéo déjà optimisée.
+      finalBuffer = rawBuffer
+      contentType = file.type || 'video/mp4'
+      const ext = (file.name.split('.').pop() || 'mp4').toLowerCase()
+      filename = `${uniqueId}.${ext}`
     } else {
       // Optimiser avec Sharp → WebP
       const optimized = await optimizeImage(rawBuffer)

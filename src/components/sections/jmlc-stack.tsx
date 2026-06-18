@@ -7,8 +7,47 @@ import { useEffect, useRef, useState } from 'react'
 import { Lightbox } from '@/components/lightbox'
 import { useLikes } from '@/hooks/use-likes'
 import { optimizedImage } from '@/lib/img'
+import { isVideo } from '@/lib/media'
 import type { Project } from '@/lib/projects'
 import { cn } from '@/lib/utils'
+
+// Vidéo de galerie : autoplay muet en boucle, lecture uniquement quand elle est
+// visible à l'écran (IntersectionObserver) pour ne pas plomber les perfs.
+function AutoVideo({
+  src,
+  className,
+  eager,
+}: {
+  src: string
+  className?: string
+  eager?: boolean
+}) {
+  const ref = useRef<HTMLVideoElement>(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) el.play().catch(() => {})
+        else el.pause()
+      },
+      { threshold: 0.35 }
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+  return (
+    <video
+      ref={ref}
+      src={src}
+      className={className}
+      muted
+      loop
+      playsInline
+      preload={eager ? 'auto' : 'metadata'}
+    />
+  )
+}
 
 const ease = [0.22, 1, 0.36, 1] as const
 
@@ -130,16 +169,27 @@ function ProjectCarousel({ project, likes }: { project: Project; likes: Likes })
               className={cn('block h-full overflow-hidden', frameClass(images[0]))}
               aria-label="Agrandir la photo"
             >
-              <img
-                src={optimizedImage(images[0], { width: 1600 })}
-                alt={project.title}
-                loading="lazy"
-                decoding="async"
-                className={cn(
-                  'h-full object-cover transition-transform duration-[1200ms] ease-out group-hover/photo:scale-[1.02]',
-                  orientationOf(images[0]) ? 'w-full' : 'w-auto'
-                )}
-              />
+              {isVideo(images[0]) ? (
+                <AutoVideo
+                  src={images[0]}
+                  eager
+                  className={cn(
+                    'h-full object-cover',
+                    orientationOf(images[0]) ? 'w-full' : 'w-auto'
+                  )}
+                />
+              ) : (
+                <img
+                  src={optimizedImage(images[0], { width: 1600 })}
+                  alt={project.title}
+                  loading="lazy"
+                  decoding="async"
+                  className={cn(
+                    'h-full object-cover transition-transform duration-[1200ms] ease-out group-hover/photo:scale-[1.02]',
+                    orientationOf(images[0]) ? 'w-full' : 'w-auto'
+                  )}
+                />
+              )}
             </button>
             <LikeButton
               count={likes.count(images[0])}
@@ -168,14 +218,22 @@ function ProjectCarousel({ project, likes }: { project: Project; likes: Likes })
                     aria-label={`Agrandir la photo ${i + 1}`}
                     className="block h-full w-full overflow-hidden"
                   >
-                    <img
-                      src={optimizedImage(src, { width: 1300 })}
-                      alt=""
-                      loading={i === 0 ? 'eager' : 'lazy'}
-                      decoding="async"
-                      fetchPriority={i === 0 ? 'high' : 'auto'}
-                      className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover/photo:scale-[1.02]"
-                    />
+                    {isVideo(src) ? (
+                      <AutoVideo
+                        src={src}
+                        eager={i === 0}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <img
+                        src={optimizedImage(src, { width: 1300 })}
+                        alt=""
+                        loading={i === 0 ? 'eager' : 'lazy'}
+                        decoding="async"
+                        fetchPriority={i === 0 ? 'high' : 'auto'}
+                        className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover/photo:scale-[1.02]"
+                      />
+                    )}
                   </button>
                   <LikeButton
                     count={likes.count(src)}

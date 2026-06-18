@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { useRef, useState } from 'react'
 
+import { isVideo } from '@/lib/media'
 import type { PhotoOrientation } from '@/lib/projects'
 
 type Props = {
@@ -35,7 +36,7 @@ export function GalleryEditor({
   orientations,
   onOrientationChange,
   label = 'Photos',
-  helpText = 'Glissez vos photos ici, parcourez votre ordinateur, ou collez une URL.',
+  helpText = 'Glissez vos photos ou vidéos ici, parcourez votre ordinateur, ou collez une URL. Les vidéos sont automatiquement compressées.',
 }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(0)
@@ -77,7 +78,9 @@ export function GalleryEditor({
   }
 
   async function handleFiles(files: FileList | File[]) {
-    const list = Array.from(files).filter((f) => f.type.startsWith('image/'))
+    const list = Array.from(files).filter(
+      (f) => f.type.startsWith('image/') || f.type.startsWith('video/')
+    )
     if (list.length === 0) return
     setError(null)
     setUploading((c) => c + list.length)
@@ -151,7 +154,7 @@ export function GalleryEditor({
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*"
+          accept="image/*,video/*"
           multiple
           className="hidden"
           onChange={(e) => {
@@ -166,7 +169,7 @@ export function GalleryEditor({
             onClick={() => fileInputRef.current?.click()}
             className="rounded-md bg-foreground px-4 py-2 text-[13px] font-medium text-[var(--brand-cream)] transition-opacity hover:opacity-90"
           >
-            Choisir des photos
+            Choisir des photos ou vidéos
           </button>
         </div>
         <p className="max-w-sm text-[12px] text-muted-foreground">{helpText}</p>
@@ -258,7 +261,20 @@ export function GalleryEditor({
                     : 'border-border'
                 }`}
               >
-                <img src={src} alt="" className="h-full w-full cursor-grab object-cover" />
+                {isVideo(src) ? (
+                  <video
+                    src={src}
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
+                    className="h-full w-full cursor-grab object-cover"
+                    onMouseEnter={(e) => e.currentTarget.play().catch(() => {})}
+                    onMouseLeave={(e) => e.currentTarget.pause()}
+                  />
+                ) : (
+                  <img src={src} alt="" className="h-full w-full cursor-grab object-cover" />
+                )}
 
                 {/* Numéro d'ordre */}
                 <span className="absolute top-2 left-2 rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">

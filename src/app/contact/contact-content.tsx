@@ -1,7 +1,7 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { ArrowUpRight } from 'lucide-react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { ArrowUpRight, Check } from 'lucide-react'
 import { useState } from 'react'
 
 import { brandAssets } from '@/lib/brand'
@@ -16,7 +16,7 @@ export function ContactContent({
   site: SiteContent['site']
   contact: SiteContent['contact']
 }) {
-  const [sent, setSent] = useState(false)
+  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const hoursLines = (site.hours || '').split('\n').filter(Boolean)
   const hasIntroHeader = Boolean(contact.eyebrow || contact.title || contact.intro)
 
@@ -151,53 +151,134 @@ export function ContactContent({
               </h3>
             ) : null}
 
-            <form
-              onSubmit={(e) => {
-                e.preventDefault()
-                setSent(true)
-              }}
-              className="mt-12 space-y-10"
-            >
-              <div className="grid gap-10 sm:grid-cols-2">
-                <Field label="Prénom" name="firstName" />
-                <Field label="Nom" name="lastName" />
-              </div>
-              <div className="grid gap-10 sm:grid-cols-2">
-                <Field label="Email" name="email" type="email" />
-                <Field label="Téléphone" name="phone" type="tel" />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="message"
-                  className="text-[11px] uppercase tracking-[0.22em] text-foreground/55"
+            <AnimatePresence mode="wait">
+              {status === 'sent' ? (
+                <motion.div
+                  key="confirmation"
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5, ease }}
+                  className="mt-12 flex flex-col items-start"
                 >
-                  Votre message
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows={5}
-                  placeholder="Votre projet, vos envies, le lieu…"
-                  className="mt-3 w-full resize-none border-0 border-b border-border bg-transparent pb-2 text-[15px] text-foreground placeholder:text-foreground/40 focus:border-foreground focus:outline-none"
-                />
-              </div>
-
-              <div className="flex flex-wrap items-center justify-between gap-4 pt-4">
-                <button
-                  type="submit"
-                  className="group inline-flex items-center gap-3 rounded-full bg-foreground px-6 py-3 text-[12px] uppercase tracking-[0.22em] text-[var(--brand-cream)] transition-transform hover:translate-y-[-1px]"
-                >
-                  <span>{sent ? 'Message envoyé' : 'Envoyer le message'}</span>
-                  <span className="transition-transform group-hover:translate-x-0.5">→</span>
-                </button>
-                {sent ? (
-                  <p className="text-sm italic text-foreground/65">
-                    Merci, je reviens vers vous très vite.
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 220, damping: 13, delay: 0.12 }}
+                    className="inline-flex size-16 items-center justify-center rounded-full bg-foreground text-[var(--brand-cream)]"
+                  >
+                    <motion.span
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 0.35, duration: 0.3 }}
+                    >
+                      <Check className="size-8" strokeWidth={1.75} />
+                    </motion.span>
+                  </motion.span>
+                  <h3 className="mt-7 font-display text-3xl font-light tracking-tight text-foreground sm:text-4xl">
+                    Message bien envoyé
+                  </h3>
+                  <p className="mt-4 max-w-md text-[15px] leading-relaxed text-foreground/65">
+                    Merci, votre message m&apos;est bien parvenu. Je reviens vers vous
+                    personnellement très vite — généralement sous 24 à 48 heures.
                   </p>
-                ) : null}
-              </div>
-            </form>
+                  <button
+                    type="button"
+                    onClick={() => setStatus('idle')}
+                    className="group mt-9 inline-flex items-center gap-2 border-b border-foreground/50 pb-1 text-[12px] uppercase tracking-[0.22em] text-foreground transition-colors hover:border-foreground"
+                  >
+                    Envoyer un autre message
+                    <span className="transition-transform group-hover:translate-x-0.5">→</span>
+                  </button>
+                </motion.div>
+              ) : (
+                <motion.form
+                  key="form"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3, ease }}
+                  onSubmit={async (e) => {
+                    e.preventDefault()
+                    const form = e.currentTarget
+                    setStatus('sending')
+                    try {
+                      const res = await fetch('https://formspree.io/f/xqeovznn', {
+                        method: 'POST',
+                        headers: { Accept: 'application/json' },
+                        body: new FormData(form),
+                      })
+                      if (res.ok) {
+                        setStatus('sent')
+                        form.reset()
+                      } else {
+                        setStatus('error')
+                      }
+                    } catch {
+                      setStatus('error')
+                    }
+                  }}
+                  className="mt-12 space-y-10"
+                >
+                  {/* Sujet du mail reçu (en français) + piège anti-spam */}
+                  <input
+                    type="hidden"
+                    name="_subject"
+                    value="Nouveau message depuis le site Studio M"
+                  />
+                  <input
+                    type="text"
+                    name="_gotcha"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    aria-hidden
+                    className="hidden"
+                  />
+
+                  <div className="grid gap-10 sm:grid-cols-2">
+                    <Field label="Prénom" id="firstName" name="Prénom" />
+                    <Field label="Nom" id="lastName" name="Nom" />
+                  </div>
+                  <div className="grid gap-10 sm:grid-cols-2">
+                    <Field label="Email" id="email" name="Email" type="email" required />
+                    <Field label="Téléphone" id="phone" name="Téléphone" type="tel" />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="message"
+                      className="text-[11px] uppercase tracking-[0.22em] text-foreground/55"
+                    >
+                      Votre message
+                    </label>
+                    <textarea
+                      id="message"
+                      name="Message"
+                      rows={5}
+                      required
+                      placeholder="Votre projet, vos envies, le lieu…"
+                      className="mt-3 w-full resize-none border-0 border-b border-border bg-transparent pb-2 text-[15px] text-foreground placeholder:text-foreground/40 focus:border-foreground focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-4 pt-4">
+                    <button
+                      type="submit"
+                      disabled={status === 'sending'}
+                      className="group inline-flex items-center gap-3 rounded-full bg-foreground px-6 py-3 text-[12px] uppercase tracking-[0.22em] text-[var(--brand-cream)] transition-transform hover:translate-y-[-1px] disabled:opacity-60"
+                    >
+                      <span>{status === 'sending' ? 'Envoi…' : 'Envoyer le message'}</span>
+                      <span className="transition-transform group-hover:translate-x-0.5">→</span>
+                    </button>
+                    {status === 'error' ? (
+                      <p className="text-sm italic text-red-700">
+                        Une erreur est survenue. Réessayez, ou écrivez-moi directement par email.
+                      </p>
+                    ) : null}
+                  </div>
+                </motion.form>
+              )}
+            </AnimatePresence>
           </motion.div>
         </div>
       </section>
@@ -207,28 +288,33 @@ export function ContactContent({
 
 function Field({
   label,
+  id,
   name,
   type = 'text',
   placeholder,
+  required,
 }: {
   label: string
+  id: string
   name: string
   type?: string
   placeholder?: string
+  required?: boolean
 }) {
   return (
     <div>
       <label
-        htmlFor={name}
+        htmlFor={id}
         className="text-[11px] uppercase tracking-[0.22em] text-foreground/55"
       >
         {label}
       </label>
       <input
-        id={name}
+        id={id}
         name={name}
         type={type}
         placeholder={placeholder}
+        required={required}
         className="mt-3 w-full border-0 border-b border-border bg-transparent pb-2 text-[15px] text-foreground placeholder:text-foreground/40 focus:border-foreground focus:outline-none"
       />
     </div>
