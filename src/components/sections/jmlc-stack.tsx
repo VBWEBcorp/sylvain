@@ -118,13 +118,8 @@ function ProjectCarousel({ project, likes }: { project: Project; likes: Likes })
           <div className="flex aspect-[16/10] w-full items-center justify-center sm:aspect-[21/9]">
             <div className="px-6 text-center">
               <p className="font-display text-2xl font-light tracking-tight text-foreground/70 sm:text-3xl">
-                {project.comingSoon ? 'Coming soon' : 'Photos à venir'}
+                Coming soon
               </p>
-              {project.shootingDate ? (
-                <p className="mt-3 text-[11px] uppercase tracking-[0.28em] text-foreground/45">
-                  {project.shootingDate}
-                </p>
-              ) : null}
             </div>
           </div>
         ) : single ? (

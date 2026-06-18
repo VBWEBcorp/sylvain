@@ -26,7 +26,7 @@ const jsonLd = {
 
 // Reportages vidéo (YouTube, mode confidentialité renforcée, lecture auto en sourdine).
 const videos = [
-  { id: 'IwU2mV35wfc', start: 115, vertical: false, title: 'Reportage vidéo' },
+  { id: 'IwU2mV35wfc', start: 0, vertical: false, title: 'Reportage vidéo' },
   { id: 'Ug9QKUk2Oq4', start: 0, vertical: true, title: 'Format court' },
 ] as const
 
@@ -57,11 +57,21 @@ function embedSrc(id: string, start: number) {
   return `https://www.youtube-nocookie.com/embed/${id}?${params.toString()}`
 }
 
+function Caption({ n, label }: { n: string; label: string }) {
+  return (
+    <div className="mb-3 flex items-baseline gap-3">
+      <span className="font-display text-sm tabular-nums text-foreground/40">{n}</span>
+      <span aria-hidden className="h-px w-6 bg-foreground/20" />
+      <span className="text-[11px] uppercase tracking-[0.28em] text-foreground/55">{label}</span>
+    </div>
+  )
+}
+
 function VideoTile({ v }: { v: (typeof videos)[number] }) {
   return (
     <div
-      className={`relative w-full overflow-hidden bg-black ${
-        v.vertical ? 'mx-auto aspect-[9/16] max-w-[360px]' : 'aspect-video'
+      className={`relative w-full overflow-hidden rounded-lg bg-black shadow-sm ring-1 ring-foreground/10 ${
+        v.vertical ? 'mx-auto aspect-[9/16] max-w-[340px]' : 'aspect-video'
       }`}
     >
       <iframe
@@ -86,7 +96,7 @@ function ArticleTile({ a }: { a: (typeof articles)[number] }) {
       aria-label={`Lire l'article : ${a.title} (${a.source})`}
       className="group block"
     >
-      <div className="relative aspect-[4/5] w-full overflow-hidden bg-white ring-1 ring-foreground/10">
+      <div className="relative aspect-[4/5] w-full overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-foreground/10 transition-shadow duration-300 group-hover:shadow-md">
         {a.image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -111,8 +121,8 @@ function ArticleTile({ a }: { a: (typeof articles)[number] }) {
           Lire l’article →
         </span>
       </div>
-      <p className="mt-3 text-[11px] uppercase tracking-[0.28em] text-foreground/55">
-        {a.source}
+      <p className="mt-3 max-w-md text-[13px] leading-snug text-foreground/70">
+        {a.title}
       </p>
     </a>
   )
@@ -141,19 +151,40 @@ export default function PressePage() {
         </div>
       </section>
 
-      {/* Presse — chaque vidéo (lecture auto) avec la capture d'article à côté */}
-      <section className="bg-white pb-24 pt-10 sm:pb-32 sm:pt-12">
-        <div className="mx-auto max-w-[1400px] space-y-4 px-6 sm:space-y-6 sm:px-10 lg:px-16">
-          {/* Ligne 1 — vidéo paysage centrée verticalement face à l'article */}
-          <div className="grid gap-4 sm:gap-6 lg:grid-cols-2 lg:items-center">
-            <VideoTile v={videoMain} />
-            <ArticleTile a={articleA} />
-          </div>
+      {/* Presse — reportages vidéo (lecture auto) + captures d'articles */}
+      <section className="bg-white pb-24 pt-10 sm:pb-32 sm:pt-14">
+        <div className="mx-auto max-w-[1400px] px-6 sm:px-10 lg:px-16">
+          <p className="max-w-2xl text-[15px] leading-relaxed text-foreground/65">
+            Reportages vidéo et articles consacrés aux projets de Studio M et au
+            travail de Sylvain Marceau.
+          </p>
 
-          {/* Ligne 2 — vidéo à gauche, article à droite */}
-          <div className="grid gap-4 sm:gap-6 lg:grid-cols-2 lg:items-start">
-            <VideoTile v={videoShort} />
-            <ArticleTile a={articleB} />
+          <div className="mt-12 space-y-14 sm:mt-14 sm:space-y-20">
+            {/* Ligne 1 — reportage paysage + article */}
+            <div className="grid gap-8 lg:grid-cols-12 lg:items-start lg:gap-12">
+              <div className="lg:col-span-7">
+                <Caption n="01" label={videoMain.title} />
+                <VideoTile v={videoMain} />
+              </div>
+              <div className="lg:col-span-5">
+                <Caption n="02" label={articleA.source} />
+                <ArticleTile a={articleA} />
+              </div>
+            </div>
+
+            {/* Ligne 2 — format court vertical + article */}
+            <div className="grid gap-8 lg:grid-cols-12 lg:items-start lg:gap-12">
+              <div className="lg:col-span-5">
+                <div className="mx-auto max-w-[340px]">
+                  <Caption n="03" label={videoShort.title} />
+                  <VideoTile v={videoShort} />
+                </div>
+              </div>
+              <div className="lg:col-span-7">
+                <Caption n="04" label={articleB.source} />
+                <ArticleTile a={articleB} />
+              </div>
+            </div>
           </div>
         </div>
       </section>
