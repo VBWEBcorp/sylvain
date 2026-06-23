@@ -30,13 +30,45 @@ function authHeader(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
+// Redimensionne + recompresse une image dans le navigateur AVANT l'envoi.
+// Côté long capé à 2560 px, sortie WebP q0.85 : on reproduit l'ancienne
+// optimisation Sharp (qui tournait côté serveur) sans faire transiter le
+// fichier lourd par la fonction. `imageOrientation: 'from-image'` applique
+// l'orientation EXIF (photo paysage = paysage). En cas d'échec, on renvoie
+// l'original tel quel.
+async function prepareImage(
+  file: File
+): Promise<{ blob: Blob; contentType: string; ext: string }> {
+  const MAX = 2560
+  try {
+    const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' })
+    const scale = Math.min(1, MAX / Math.max(bitmap.width, bitmap.height))
+    const w = Math.max(1, Math.round(bitmap.width * scale))
+    const h = Math.max(1, Math.round(bitmap.height * scale))
+    const canvas = document.createElement('canvas')
+    canvas.width = w
+    canvas.height = h
+    const ctx = canvas.getContext('2d')
+    if (!ctx) throw new Error('canvas 2d indisponible')
+    ctx.drawImage(bitmap, 0, 0, w, h)
+    bitmap.close?.()
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob((b) => resolve(b), 'image/webp', 0.85)
+    )
+    if (!blob) throw new Error('toBlob a échoué')
+    return { blob, contentType: 'image/webp', ext: 'webp' }
+  } catch {
+    return { blob: file, contentType: file.type || 'image/jpeg', ext: file.name.split('.').pop() || 'jpg' }
+  }
+}
+
 export function GalleryEditor({
   value,
   onChange,
   orientations,
   onOrientationChange,
   label = 'Photos',
-  helpText = 'Glissez vos photos ou vidéos ici, parcourez votre ordinateur, ou collez une URL. Les vidéos sont automatiquement compressées.',
+  helpText = 'Glissez vos photos ou vidéos ici, parcourez votre ordinateur, ou collez une URL. Les photos sont optimisées automatiquement ; pour les vidéos, privilégiez un fichier déjà compressé (idéalement < 50 Mo).',
 }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(0)
@@ -46,35 +78,72 @@ export function GalleryEditor({
   const [bulkUrls, setBulkUrls] = useState('')
   const [error, setError] = useState<string | null>(null)
 
+  function handleSessionExpired() {
+    setError('Votre session a expiré. Redirection vers la page de connexion…')
+    // Token mort : on le purge et on renvoie vers la connexion pour que le
+    // client se reconnecte proprement (plutôt que de buter sur des 401).
+    localStorage.removeItem('authToken')
+    localStorage.removeItem('authUser')
+    setTimeout(() => {
+      window.location.href = '/admin/login'
+    }, 1500)
+  }
+
+  // Upload direct vers Cloudflare R2 via une URL pré-signée : le fichier ne
+  // passe plus par /api/upload (limite ~6 Mo des fonctions Netlify), ce qui
+  // débloque les photos HD et les vidéos. Les images sont d'abord allégées
+  // dans le navigateur ; les vidéos partent telles quelles.
   async function uploadFile(file: File): Promise<string | null> {
-    const form = new FormData()
-    form.append('file', file)
-    const res = await fetch('/api/upload', {
+    const isVid = file.type.startsWith('video/')
+
+    let blob: Blob = file
+    let contentType = file.type || 'application/octet-stream'
+    let uploadName = file.name
+    if (!isVid) {
+      const prepared = await prepareImage(file)
+      blob = prepared.blob
+      contentType = prepared.contentType
+      uploadName = `${file.name.replace(/\.[^.]+$/, '')}.${prepared.ext}`
+    }
+
+    // 1) Demander une URL pré-signée à notre serveur.
+    const presignRes = await fetch('/api/upload/presign', {
       method: 'POST',
-      headers: { ...authHeader() },
-      body: form,
+      headers: { 'Content-Type': 'application/json', ...authHeader() },
+      body: JSON.stringify({ filename: uploadName, contentType, size: blob.size }),
     })
-    if (!res.ok) {
-      if (res.status === 401) {
-        setError(
-          'Votre session a expiré. Redirection vers la page de connexion…'
-        )
-        // Token mort : on le purge et on renvoie vers la connexion pour que le
-        // client se reconnecte proprement (plutôt que de buter sur des 401).
-        localStorage.removeItem('authToken')
-        localStorage.removeItem('authUser')
-        setTimeout(() => {
-          window.location.href = '/admin/login'
-        }, 1500)
+    if (!presignRes.ok) {
+      if (presignRes.status === 401) {
+        handleSessionExpired()
       } else {
-        const err = await res.json().catch(() => ({}))
+        const err = await presignRes.json().catch(() => ({}))
         setError(`Échec de l'envoi de « ${file.name} »${err?.error ? ` : ${err.error}` : ''}.`)
       }
-      console.error('Upload failed', res.status)
+      console.error('Presign failed', presignRes.status)
       return null
     }
-    const data = await res.json()
-    return data.url as string
+    const { uploadUrl, publicUrl } = await presignRes.json()
+
+    // 2) Envoyer le fichier directement à R2 (le Content-Type doit être
+    // identique à celui signé par le serveur).
+    try {
+      const putRes = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': contentType },
+        body: blob,
+      })
+      if (!putRes.ok) {
+        setError(`Échec de l'envoi de « ${file.name} » (transfert vers le stockage).`)
+        console.error('R2 PUT failed', putRes.status)
+        return null
+      }
+    } catch (e) {
+      setError(`Échec de l'envoi de « ${file.name} » (connexion au stockage).`)
+      console.error('R2 PUT error', e)
+      return null
+    }
+
+    return publicUrl as string
   }
 
   async function handleFiles(files: FileList | File[]) {
