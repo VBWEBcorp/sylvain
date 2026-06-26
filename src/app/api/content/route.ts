@@ -3,6 +3,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAuth } from '@/lib/auth'
 import { readContent, writeContent, type SiteContent } from '@/lib/content-store'
 
+// Lecture/écriture en base à chaque appel : jamais de réponse mise en cache.
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   const content = await readContent()
   return NextResponse.json(content)

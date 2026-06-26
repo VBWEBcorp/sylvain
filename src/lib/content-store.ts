@@ -1,7 +1,7 @@
 import 'server-only'
 
-import { promises as fs } from 'fs'
-import path from 'path'
+import { connectDB } from '@/lib/db'
+import SiteContentModel from '@/models/SiteContent'
 
 export type SiteContent = {
   site: {
@@ -36,8 +36,8 @@ export type SiteContent = {
   }
 }
 
-const DATA_DIR = path.join(process.cwd(), 'data')
-const DATA_FILE = path.join(DATA_DIR, 'content.json')
+// Un seul document regroupe tout le contenu éditable du site.
+const PAGE_ID = 'site'
 
 const DEFAULTS: SiteContent = {
   site: {
@@ -77,35 +77,36 @@ const DEFAULTS: SiteContent = {
   },
 }
 
-async function ensureFile(): Promise<void> {
-  try {
-    await fs.mkdir(DATA_DIR, { recursive: true })
-    await fs.access(DATA_FILE)
-  } catch {
-    await fs.writeFile(DATA_FILE, JSON.stringify(DEFAULTS, null, 2), 'utf8')
+// Fusionne le contenu stocké avec les valeurs par défaut pour tolérer une
+// structure incomplète (champ ajouté depuis, document partiel, etc.).
+function withDefaults(parsed: Partial<SiteContent>): SiteContent {
+  return {
+    site: { ...DEFAULTS.site, ...parsed.site, address: { ...DEFAULTS.site.address, ...parsed.site?.address } },
+    home: { ...DEFAULTS.home, ...parsed.home },
+    studio: { ...DEFAULTS.studio, ...parsed.studio },
+    contact: { ...DEFAULTS.contact, ...parsed.contact },
   }
 }
 
 export async function readContent(): Promise<SiteContent> {
   try {
-    await ensureFile()
-    const raw = await fs.readFile(DATA_FILE, 'utf8')
-    const parsed = JSON.parse(raw) as Partial<SiteContent>
-    // Merge with defaults pour tolérer une structure incomplète
-    return {
-      site: { ...DEFAULTS.site, ...parsed.site, address: { ...DEFAULTS.site.address, ...parsed.site?.address } },
-      home: { ...DEFAULTS.home, ...parsed.home },
-      studio: { ...DEFAULTS.studio, ...parsed.studio },
-      contact: { ...DEFAULTS.contact, ...parsed.contact },
-    }
+    await connectDB()
+    const doc = await SiteContentModel.findOne({ pageId: PAGE_ID }).lean<{ content?: Partial<SiteContent> }>()
+    return withDefaults(doc?.content ?? {})
   } catch {
+    // En cas d'indisponibilité de la base, on sert les valeurs par défaut
+    // plutôt que de planter la page.
     return DEFAULTS
   }
 }
 
 export async function writeContent(content: SiteContent): Promise<void> {
-  await fs.mkdir(DATA_DIR, { recursive: true })
-  await fs.writeFile(DATA_FILE, JSON.stringify(content, null, 2), 'utf8')
+  await connectDB()
+  await SiteContentModel.findOneAndUpdate(
+    { pageId: PAGE_ID },
+    { pageId: PAGE_ID, content },
+    { upsert: true, new: true }
+  )
 }
 
 export async function patchContent<K extends keyof SiteContent>(
