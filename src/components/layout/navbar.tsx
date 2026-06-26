@@ -61,7 +61,7 @@ export function Navbar() {
             : 'bg-transparent'
         )}
       >
-        <div className="mx-auto flex h-20 max-w-[1400px] items-center justify-between gap-6 px-6 sm:px-10 lg:px-16">
+        <div className="mx-auto flex h-24 max-w-[1400px] items-center justify-between gap-6 px-6 sm:h-[6.5rem] sm:px-10 lg:px-16">
           <Logo />
 
           {/* Liens toujours visibles en partie haute (desktop) — en transparence */}
@@ -112,7 +112,7 @@ export function Navbar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4, ease }}
-            className="fixed inset-0 z-40 flex flex-col bg-[var(--brand-cream)] pt-20"
+            className="fixed inset-0 z-40 flex flex-col bg-[var(--brand-cream)] pt-24"
           >
             <nav
               aria-label="Navigation principale"
