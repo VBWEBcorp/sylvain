@@ -13,6 +13,7 @@ import {
   FileText,
   LayoutGrid,
   Megaphone,
+  Newspaper,
 } from 'lucide-react'
 
 interface AdminUser {
@@ -26,6 +27,7 @@ const modules = [
   { href: '/admin/pages/contact', label: 'Contact', desc: 'Formulaire, coordonnées', icon: Phone },
   { href: '/admin/projets', label: 'Réalisations', desc: 'Projets affichés sur le site', icon: LayoutGrid },
   { href: '/admin/blog', label: 'Journal', desc: 'Articles et actualités', icon: FileText },
+  { href: '/admin/press', label: 'Presse', desc: 'Articles de presse et reportages vidéo', icon: Newspaper },
   { href: '/admin/gallery', label: 'Galerie', desc: 'Photos du site', icon: Images },
   { href: '/admin/site', label: 'Coordonnées', desc: 'Infos contact, réseaux', icon: Megaphone },
 ]

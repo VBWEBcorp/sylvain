@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 
+import { connectDB } from '@/lib/db'
+import { PressItem } from '@/models/Press'
 import { breadcrumbJsonLd, webPageJsonLd } from '@/components/seo/json-ld'
 
 export const dynamic = 'force-dynamic'
@@ -24,29 +26,73 @@ const jsonLd = {
   ],
 }
 
-// Reportages vidéo (YouTube, mode confidentialité renforcée, lecture auto en sourdine).
-const videos = [
-  { id: 'IwU2mV35wfc', start: 0, vertical: false, title: 'Reportage vidéo' },
-  { id: 'Ug9QKUk2Oq4', start: 0, vertical: true, title: 'Format court' },
-] as const
+type PressEntry = {
+  kind: 'article' | 'video'
+  title: string
+  source?: string
+  href?: string
+  image?: string
+  youtubeId?: string
+  start?: number
+  vertical?: boolean
+}
 
-// Articles de presse écrite, affichés en capture d'écran cliquable (ouvre l'article).
-const articles = [
+// Contenu de secours affiché tant qu'aucun élément n'a été saisi dans l'admin.
+const FALLBACK: PressEntry[] = [
   {
-    href: 'https://www.sloft-magazine.com/le-magazine/visite-guidee/coup-double-a-paris-36-m%c2%b2-qui-jouent-sur-tous-les-tableaux/',
-    source: 'Sloft Magazine',
-    title: 'Coup double à Paris : 36 m² qui jouent sur tous les tableaux',
-    image: '/presse/sloft-coup-double.webp',
-  },
-  {
-    href: 'https://www.sloft-magazine.com/le-magazine/visite-guidee/un-appartement-en-trois-villes/',
+    kind: 'article',
     source: 'Sloft Magazine',
     title: 'Un appartement en trois villes',
+    href: 'https://www.sloft-magazine.com/le-magazine/visite-guidee/un-appartement-en-trois-villes/',
     image: '/presse/sloft-trois-villes.webp',
+  },
+  {
+    kind: 'video',
+    title: 'Reportage vidéo',
+    youtubeId: 'IwU2mV35wfc',
+    vertical: false,
+  },
+  {
+    kind: 'video',
+    title: 'Format court',
+    youtubeId: 'Ug9QKUk2Oq4',
+    vertical: true,
+  },
+  {
+    kind: 'article',
+    source: 'Sloft Magazine',
+    title: 'Coup double à Paris : 36 m² qui jouent sur tous les tableaux',
+    href: 'https://www.sloft-magazine.com/le-magazine/visite-guidee/coup-double-a-paris-36-m%c2%b2-qui-jouent-sur-tous-les-tableaux/',
+    image: '/presse/sloft-coup-double.webp',
   },
 ]
 
-function embedSrc(id: string, start: number) {
+async function getPressItems(): Promise<PressEntry[]> {
+  try {
+    await connectDB()
+    const docs = await PressItem.find({ active: true })
+      .sort({ order: 1, createdAt: -1 })
+      .lean()
+
+    if (!docs.length) return FALLBACK
+
+    return docs.map((d: any) => ({
+      kind: d.kind === 'video' ? 'video' : 'article',
+      title: d.title,
+      source: d.source,
+      href: d.href,
+      image: d.image,
+      youtubeId: d.youtubeId,
+      start: d.start,
+      vertical: d.vertical,
+    }))
+  } catch (error) {
+    console.error('Press page fetch error:', error)
+    return FALLBACK
+  }
+}
+
+function embedSrc(id: string, start = 0) {
   const params = new URLSearchParams({
     rel: '0',
     autoplay: '1',
@@ -67,7 +113,7 @@ function Caption({ n, label }: { n: string; label: string }) {
   )
 }
 
-function VideoTile({ v }: { v: (typeof videos)[number] }) {
+function VideoTile({ v }: { v: PressEntry }) {
   return (
     <div
       className={`relative w-full overflow-hidden rounded-lg bg-black shadow-sm ring-1 ring-foreground/10 ${
@@ -75,7 +121,7 @@ function VideoTile({ v }: { v: (typeof videos)[number] }) {
       }`}
     >
       <iframe
-        src={embedSrc(v.id, v.start)}
+        src={embedSrc(v.youtubeId ?? '', v.start ?? 0)}
         title={v.title}
         loading="lazy"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -87,50 +133,64 @@ function VideoTile({ v }: { v: (typeof videos)[number] }) {
   )
 }
 
-function ArticleTile({ a }: { a: (typeof articles)[number] }) {
+function ArticleTile({ a }: { a: PressEntry }) {
+  const tile = (
+    <div className="relative aspect-[4/5] w-full overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-foreground/10 transition-shadow duration-300 group-hover:shadow-md">
+      {a.image ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={a.image}
+          alt={`${a.source ?? ''} — ${a.title}`}
+          loading="lazy"
+          className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+        />
+      ) : (
+        <span className="flex h-full w-full items-center justify-center px-6 text-center font-display text-2xl font-light tracking-tight text-foreground/25">
+          {a.source}
+        </span>
+      )}
+      <span
+        aria-hidden
+        className="absolute inset-0 bg-foreground/0 transition-colors duration-300 group-hover:bg-foreground/10"
+      />
+      <span
+        aria-hidden
+        className="absolute bottom-4 left-4 inline-flex translate-y-1 items-center gap-1 bg-white/90 px-3 py-1.5 text-[11px] uppercase tracking-[0.2em] text-foreground opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100"
+      >
+        Lire l’article →
+      </span>
+    </div>
+  )
+
+  const caption = (
+    <p className="mt-3 max-w-md text-[13px] leading-snug text-foreground/70">{a.title}</p>
+  )
+
+  if (!a.href) {
+    return (
+      <div className="group block">
+        {tile}
+        {caption}
+      </div>
+    )
+  }
+
   return (
     <a
       href={a.href}
       target="_blank"
       rel="noreferrer"
-      aria-label={`Lire l'article : ${a.title} (${a.source})`}
+      aria-label={`Lire l'article : ${a.title}${a.source ? ` (${a.source})` : ''}`}
       className="group block"
     >
-      <div className="relative aspect-[4/5] w-full overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-foreground/10 transition-shadow duration-300 group-hover:shadow-md">
-        {a.image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={a.image}
-            alt={`${a.source} — ${a.title}`}
-            loading="lazy"
-            className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.02]"
-          />
-        ) : (
-          <span className="flex h-full w-full items-center justify-center px-6 text-center font-display text-2xl font-light tracking-tight text-foreground/25">
-            {a.source}
-          </span>
-        )}
-        <span
-          aria-hidden
-          className="absolute inset-0 bg-foreground/0 transition-colors duration-300 group-hover:bg-foreground/10"
-        />
-        <span
-          aria-hidden
-          className="absolute bottom-4 left-4 inline-flex translate-y-1 items-center gap-1 bg-white/90 px-3 py-1.5 text-[11px] uppercase tracking-[0.2em] text-foreground opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100"
-        >
-          Lire l’article →
-        </span>
-      </div>
-      <p className="mt-3 max-w-md text-[13px] leading-snug text-foreground/70">
-        {a.title}
-      </p>
+      {tile}
+      {caption}
     </a>
   )
 }
 
-export default function PressePage() {
-  const [videoMain, videoShort] = videos
-  const [articleA, articleB] = articles
+export default async function PressePage() {
+  const items = await getPressItems()
 
   return (
     <>
@@ -159,34 +219,28 @@ export default function PressePage() {
             travail de Sylvain Marceau.
           </p>
 
-          {/* Ordre chronologique — du plus récent (01) au plus ancien (04) */}
-          <div className="mt-12 space-y-14 sm:mt-14 sm:space-y-20">
-            {/* Ligne 1 — 01 Appartement en trois villes · 02 Reportage (long) */}
-            <div className="grid gap-8 lg:grid-cols-12 lg:items-start lg:gap-12">
-              <div className="lg:col-span-5">
-                <Caption n="01" label={articleB.source} />
-                <ArticleTile a={articleB} />
-              </div>
-              <div className="lg:col-span-7">
-                <Caption n="02" label={videoMain.title} />
-                <VideoTile v={videoMain} />
-              </div>
+          {items.length === 0 ? (
+            <p className="mt-12 text-[15px] italic text-foreground/60">
+              Les parutions presse arrivent très bientôt.
+            </p>
+          ) : (
+            <div className="mt-12 grid gap-x-10 gap-y-14 sm:mt-14 sm:gap-y-20 lg:grid-cols-2 lg:items-start">
+              {items.map((item, i) => {
+                const n = String(i + 1).padStart(2, '0')
+                const label = item.kind === 'article' ? item.source ?? 'Presse' : item.title
+                return (
+                  <div key={i} className={item.kind === 'video' && item.vertical ? 'mx-auto w-full max-w-[340px]' : ''}>
+                    <Caption n={n} label={label} />
+                    {item.kind === 'article' ? (
+                      <ArticleTile a={item} />
+                    ) : (
+                      <VideoTile v={item} />
+                    )}
+                  </div>
+                )
+              })}
             </div>
-
-            {/* Ligne 2 — 03 Format court · 04 Coup double */}
-            <div className="grid gap-8 lg:grid-cols-12 lg:items-start lg:gap-12">
-              <div className="lg:col-span-5">
-                <div className="mx-auto max-w-[340px]">
-                  <Caption n="03" label={videoShort.title} />
-                  <VideoTile v={videoShort} />
-                </div>
-              </div>
-              <div className="lg:col-span-7">
-                <Caption n="04" label={articleA.source} />
-                <ArticleTile a={articleA} />
-              </div>
-            </div>
-          </div>
+          )}
         </div>
       </section>
     </>

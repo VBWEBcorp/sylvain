@@ -22,6 +22,7 @@ import {
   FilePen,
   ChevronDown,
   LayoutGrid,
+  Newspaper,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useSidebar } from '@/components/admin/sidebar-context'
@@ -39,6 +40,7 @@ const pageEditItems = [
 const moduleItems = [
   { href: '/admin/projets', label: 'Réalisations', icon: LayoutGrid },
   { href: '/admin/blog', label: 'Journal', icon: FileText },
+  { href: '/admin/press', label: 'Presse', icon: Newspaper },
   { href: '/admin/gallery', label: 'Galerie', icon: Images },
   { href: '/admin/site', label: 'Coordonnées', icon: Megaphone },
 ]
