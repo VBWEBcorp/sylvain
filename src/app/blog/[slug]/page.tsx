@@ -93,11 +93,23 @@ export default async function BlogPostPage({
   const next = await getNextPost(post.slug)
   const readingTime = estimateReadingTime(post.content)
 
+  // JSON-LD fourni par PHARE, injecté tel quel dans le <head>.
+  // Le `<` est échappé pour ne pas casser la balise script.
+  const jsonLdBrut = (post as unknown as { jsonLd?: string }).jsonLd
+  const articleLd = jsonLdBrut ? jsonLdBrut.replace(/</g, '\\u003c') : null
+
   return (
     <>
+      {articleLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: articleLd }} />
+      )}
       <section className="relative">
         <div className="relative h-[70vh] min-h-[480px] w-full overflow-hidden">
-          <img src={post.coverImage} alt={post.title} className="h-full w-full object-cover" />
+          <img
+            src={post.coverImage}
+            alt={(post as { coverImageAlt?: string }).coverImageAlt || post.title}
+            className="h-full w-full object-cover"
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/45" />
         </div>
         <div className="absolute bottom-0 left-0 w-full">

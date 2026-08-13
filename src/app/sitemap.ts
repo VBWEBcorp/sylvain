@@ -5,6 +5,11 @@ import { BlogPost } from '@/models/Blog'
 import { readAll as readAllProjects } from '@/lib/projects-store'
 import { siteConfig } from '@/lib/seo'
 
+// Rendu a la demande : revalidatePath("/sitemap.xml") ne purge pas le cache des
+// routes de metadonnees, un article depose ou retire par PHARE n y apparaitrait
+// qu au prochain build.
+export const dynamic = 'force-dynamic'
+
 const baseUrl = siteConfig.url
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
