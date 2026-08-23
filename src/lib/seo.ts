@@ -5,7 +5,7 @@ export const siteConfig = {
   locale: 'fr_FR',
   description:
     "Studio M · Sylvain Marceau, architecte d'intérieur à Paris. Rénovation d'appartements et de maisons sur mesure. Du concept au chantier.",
-  ogImage: 'https://i.ibb.co/Lhg4Vb33/Bandeau.jpg',
+  ogImage: 'https://pub-38160033658f4bdda2b29bd49588008f.r2.dev/images/Lhg4Vb33-bandeau.jpg',
   twitterHandle: '@studiom_paris',
   themeColor: '#E8DCC4',
   phone: '+33 6 58 87 57 10',
