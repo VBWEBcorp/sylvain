@@ -62,6 +62,10 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/',
   },
+  // Vérification Search Console (compte Google de VBWEB), balise posée le 22/09/2026.
+  verification: {
+    google: 'Ehm-Z7BYesBbw7rmpt-qYHoxgIVSylL2P4OICUZmwEA',
+  },
 }
 
 export const viewport: Viewport = {
