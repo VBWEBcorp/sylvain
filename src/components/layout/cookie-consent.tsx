@@ -17,11 +17,13 @@ export function CookieConsent() {
 
   const handleAccept = () => {
     localStorage.setItem('cookie-consent', 'accepted')
+    window.dispatchEvent(new Event('cookie-consent-change'))
     setVisible(false)
   }
 
   const handleRefuse = () => {
     localStorage.setItem('cookie-consent', 'refused')
+    window.dispatchEvent(new Event('cookie-consent-change'))
     setVisible(false)
   }
 
@@ -33,6 +35,8 @@ export function CookieConsent() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 20, opacity: 0 }}
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          role="region"
+          aria-label="Consentement aux cookies"
           className="fixed bottom-4 left-4 z-[100] max-w-sm rounded-xl border border-border/60 bg-card shadow-lg p-4"
         >
           <p className="text-sm text-muted-foreground leading-relaxed">

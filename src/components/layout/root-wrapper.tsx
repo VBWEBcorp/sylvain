@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation'
 
 import { Chatbot } from '@/components/chatbot'
+import { CookieConsent } from '@/components/layout/cookie-consent'
 import { Footer } from '@/components/layout/footer'
 import { Navbar } from '@/components/layout/navbar'
 import { ScrollToTop } from '@/components/scroll-to-top'
@@ -20,6 +21,7 @@ export function RootWrapper({ children }: { children: React.ReactNode }) {
       <main className="flex-1">{children}</main>
       <Footer />
       <Chatbot />
+      <CookieConsent />
     </>
   )
 }

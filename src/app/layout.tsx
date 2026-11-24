@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter, Cormorant_Garamond } from 'next/font/google'
 
+import { GoogleAnalytics } from '@/components/layout/google-analytics'
 import { RootWrapper } from '@/components/layout/root-wrapper'
 import { ThemeScript } from '@/components/theme/theme-script'
 import { siteConfig } from '@/lib/seo'
@@ -89,6 +90,7 @@ export default function RootLayout({
       </head>
       <body className="flex min-h-dvh flex-col overflow-x-hidden">
         <RootWrapper>{children}</RootWrapper>
+        <GoogleAnalytics />
       </body>
     </html>
   )
