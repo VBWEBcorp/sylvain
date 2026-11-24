@@ -2,7 +2,6 @@ import type { MetadataRoute } from 'next'
 
 import { connectDB } from '@/lib/db'
 import { BlogPost } from '@/models/Blog'
-import { readAll as readAllProjects } from '@/lib/projects-store'
 import { siteConfig } from '@/lib/seo'
 
 // Rendu a la demande : revalidatePath("/sitemap.xml") ne purge pas le cache des
@@ -41,20 +40,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  // Projets
-  try {
-    const projects = await readAllProjects()
-    for (const project of projects) {
-      pages.push({
-        url: `${baseUrl}/projets/${project.slug}`,
-        lastModified: new Date(),
-        changeFrequency: 'monthly',
-        priority: 0.7,
-      })
-    }
-  } catch (error) {
-    console.error('Sitemap projects error:', error)
-  }
+  // Les réalisations n'ont pas de page individuelle : elles vivent toutes sur /projets. Les adresses
+  // /projets/<code> répondaient 404 et n'ont rien à faire ici.
 
   // Articles de blog (MongoDB)
   try {
