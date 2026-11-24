@@ -124,9 +124,8 @@ export default function CookiePolicyPage() {
                 explicite</strong> via le bandeau de cookies.
               </p>
               <p>
-                Par défaut, <strong>aucun cookie d&apos;analyse n&apos;est actif</strong> sur ce site.
-                Cela pourra évoluer, auquel cas cette page sera mise à jour et votre
-                consentement sera recueilli.
+                Ce site utilise Google Analytics pour mesurer sa fréquentation. Tant que vous n&apos;avez
+                pas accepté le bandeau, <strong>aucun cookie d&apos;analyse n&apos;est déposé</strong>.
               </p>
 
               <h3 className="pt-2">c) Cookies publicitaires et de pistage</h3>

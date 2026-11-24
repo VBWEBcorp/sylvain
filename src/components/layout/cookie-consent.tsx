@@ -40,7 +40,7 @@ export function CookieConsent() {
           className="fixed bottom-4 left-4 z-[100] max-w-sm rounded-xl border border-border/60 bg-card shadow-lg p-4"
         >
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Ce site utilise des cookies essentiels.{' '}
+            Avec votre accord, ce site utilise Google Analytics pour mesurer sa fréquentation. Vous pouvez refuser.{' '}
             <Link href="/politique-cookies" className="text-primary underline underline-offset-2 hover:text-primary/80">
               En savoir plus
             </Link>
